@@ -5,22 +5,23 @@ function Calendar(input,ops){
     /*holiday:true or false 是否显示节日信息
     * partner:null or Calendar-obj 指定起始日期配对
     * limited:false or days[number] 是否限制日期范围
-    * switchY:false or true 是否可以一键切换年份
-    * fromToday:true or false 是否只能从今天开始选择
+    * switch:false or true 是否可以下拉框切换年份及月份
+    * fromToday:true or false 是否只能从今天开始选择（如果此选项和view冲突，那么依据此项）
     * input:true or false 是否允许手动输入日期
-    *
+    * view:'now' or 具体日期如'2011-10-10' 当前显示的月份,当连续滑动时需要一个值记录当前的日期显示状态是哪个月
     * */
     var defaults={
         holiday:true,
         partner:null,
         limited:false,
-        switchY:false,
-        fromToday:true,
-        input:true
+        switchYM:false,
+        input:true,
+        view:'now'
     };
     this.ops= $.extend(true,{},ops,defaults);
     this.input=$("#"+input);
     this.inputId=input;
+
 }
 Calendar.prototype={
     constructor:Calendar,
@@ -31,47 +32,118 @@ Calendar.prototype={
     init:function(){
         this.wrap();
         this.bindEvt();
+        if(this.view='now'){
+            var now=new Date(),
+                year=now.getFullYear(),
+                month=1*(now.getMonth())+1;
+            this.view=year+'-'+month;
+        }
     },
     bindEvt:function(){
         var _this=this;
         _this.wraper.on('click',function(e){
             e.stopPropagation();
             $('.calendar_box').hide();
-            if($('#calendar_'+_this.inputId).length<=0){
+            if(typeof _this.getDate()!='undefined'){
+                var viewObj=_this.analysisDate(_this.getView()),
+                    dateObj=_this.analysisDate(_this.getDate()),
+                    same=viewObj.year==dateObj.year && viewObj.month==dateObj.month;
+            }
+            if($('#calendar_'+_this.inputId).length<=0 || !same){
+                $('#calendar_'+_this.inputId).remove();
                 $('body').append(_this.drawShell());
+                _this.bindEvt_slideDate();
+                _this.bindEvt_selectDate();
             }
             $('#calendar_'+_this.inputId).show();
             _this.howToDecorate();
-            $('#calendar_'+_this.inputId+' td[class!="disabled"]').on('click',function(e){
-                e.stopPropagation();
-                _this.setDate($(this).attr('date'));
-                $('#calendar_'+_this.inputId).hide();
-            })
-            $('#calendar_'+_this.inputId).on('click',function(e){
-                e.stopPropagation();
-            })
-
-            if(_this.partner!=null){
-                $('#calendar_'+_this.inputId+' td').hover(function(){
-                    var end=_this.partner.getDate(),
-                        begin=$(this).attr('date');
-                    if(typeof end!='undefined' && typeof begin!='undefined'){
-                        if(_this.begin){
-                            _this.lightMiddleDates(begin,end);
-                        }else{
-                            _this.lightMiddleDates(end,begin);
-                        }
-                    }
-                },function(){
-                    $('#calendar_'+_this.inputId+' .during').removeClass('during');
-                })
-            }
+            _this.bindEvt_chooseDate();
+            _this.bindEvt_selectDate();
         })
 
         $(window).on('click',function(e){
             $('#calendar_'+_this.inputId).hide();
         })
+    },
+    bindEvt_chooseDate:function(){
+        /*click:choose a date*/
+        var _this=this;
+        $('#calendar_'+_this.inputId+' td[class!="disabled"]').on('click',function(e){
+            e.stopPropagation();
+            _this.setDate($(this).attr('date'));
+            _this.setView($(this).attr('date'));
+            $('#calendar_'+_this.inputId).hide();
+        })
 
+        $('#calendar_'+_this.inputId).on('click',function(e){
+            e.stopPropagation();
+        })
+
+        /*hover:choose a date when the partner's date is available*/
+        if(_this.partner!=null){
+            $('#calendar_'+_this.inputId+' td').hover(function(){
+                var end=_this.partner.getDate(),
+                    begin=$(this).attr('date');
+                if(typeof end!='undefined' && typeof begin!='undefined'){
+                    if(_this.begin){
+                        _this.lightMiddleDates(begin,end);
+                    }else{
+                        _this.lightMiddleDates(end,begin);
+                    }
+                }
+            },function(){
+                $('#calendar_'+_this.inputId+' .during').removeClass('during');
+            })
+        }
+    },
+    bindEvt_slideDate:function(){
+        var _this=this;
+        /*click:prev or next month*/
+        $('#calendar_'+_this.inputId+' .arrow_prev').on('click',function(){
+            var date=_this.view,
+                prevMonth=_this.lastMonth(date),
+                gridHTML=_this.drawGrid(prevMonth),
+                dateHTML=_this.drawTitle(prevMonth);
+            $('#calendar_'+_this.inputId+' .date_box_title').html(dateHTML);
+
+            _this.setView(prevMonth);
+            _this.bindEvt_chooseDate();
+            if(_this.switchYM){
+                _this.selecteDate(prevMonth);
+            }else{
+                _this.writeDate(prevMonth);
+            }
+
+        })
+        $('#calendar_'+_this.inputId+' .arrow_next').on('click',function(){
+            var date=_this.view,
+                nextMonth=_this.nextMonth(date),
+                gridHTML=_this.drawGrid(nextMonth),
+                dateHTML=_this.drawTitle(nextMonth);
+            $('#calendar_'+_this.inputId+' .date_box_title').html(dateHTML);
+            _this.setView(nextMonth);
+            _this.bindEvt_chooseDate();
+            if(_this.switchYM){
+                _this.selecteDate(nextMonth);
+            }else{
+                _this.writeDate(nextMonth);
+            }
+        })
+    },
+    bindEvt_selectDate:function(){
+        var _this=this;
+        $('#calendar_'+this.inputId+' .date_box_year').on('change',function(){
+            var date=$(this).val()+'-'+$(this).next().val();
+            $('#calendar_'+_this.inputId+' tbody').html(_this.drawGrid(date));
+            _this.setView(date);
+            _this.bindEvt_chooseDate();
+        })
+        $('#calendar_'+this.inputId+' .date_box_month').on('change',function(){
+            var date=$(this).prev().val()+'-'+$(this).val();
+            $('#calendar_'+_this.inputId+' tbody').html(_this.drawGrid(date));
+            _this.setView(date);
+            _this.bindEvt_chooseDate();
+        })
 
     },
     /*rendar*/
@@ -121,7 +193,6 @@ Calendar.prototype={
         var crtDate=new Date(),
             year,
             month,
-            date,
             days= 0,
             tableHTML='',
             firstDay=0;
@@ -129,11 +200,9 @@ Calendar.prototype={
             var day=this.analysisDate(day);
             year=day.year;
             month=day.month;
-            date=day.date;
         }else{
             year=crtDate.getFullYear();
             month=crtDate.getMonth()+ 1;
-            date=crtDate.getDate();
         }
         crtDate.setFullYear(year,month-1,1);
         firstDay=crtDate.getDay();
@@ -163,8 +232,11 @@ Calendar.prototype={
         for(var i=1;i<=days;i++){
             a.push('<td date="'+year+'-'+month+'-'+i+'"><a>'+i+'</a></td>');
         }
-        for(var k= a.length;k<35;k++){
-            a.push('<td></td>');
+        var l= a.length;
+        if(l%7!=0){
+            for(var k= 0;k<7- (l%7);k++){
+                a.push('<td></td>');
+            }
         }
         $.each(a,function(i){
             if(i%7==0){
@@ -178,24 +250,70 @@ Calendar.prototype={
         return tableHTML;
 
     },
+    drawSelect:function(day){
+        var crtDate=new Date(),
+            year,
+            month,
+            selectYearHTML='',
+            selectMonthHTML='';
+        if(typeof day!='undefined'){
+            var day=this.analysisDate(day);
+            year=day.year;
+            month=day.month;
+        }else{
+            year=crtDate.getFullYear();
+            month=crtDate.getMonth()+ 1;
+        }
+        selectYearHTML+='<select class="date_box_year">';
+        for(var i=1970;i<=year+3;i++){
+            if(year==i){
+                selectYearHTML+='<option selected="selected" value="'+i+'">'+i+'</option>';
+            }
+            selectYearHTML+='<option value="'+i+'">'+i+'</option>';
+        }
+        selectYearHTML+='</select>';
+        selectMonthHTML+='<select class="date_box_month">';
+        for(var i=0;i<=12;i++){
+            if(month==i){
+                selectMonthHTML+='<option selected="selected" value="'+i+'">'+i+'</option>';
+            }else{
+                selectMonthHTML+='<option value="'+i+'">'+i+'</option>';
+            }
+        }
+        selectMonthHTML+='</select>';
+        return selectYearHTML+' 年 '+selectMonthHTML+' 月';
+    },
+    drawTitle:function(day){
+        var crtDate=new Date(),
+            year,
+            month;
+        if(typeof day!='undefined'){
+            var day=this.analysisDate(day);
+            year=day.year;
+            month=day.month;
+        }else{
+            year=crtDate.getFullYear();
+            month=crtDate.getMonth()+ 1;
+        }
+        return year+'年'+month+'月';
+
+    },
     howToDraw:function(){
         if(typeof this.date !="undefined"){
             return {
                 gridHTML:this.drawGrid(this.date),
-                titleHTML:this.drawTitle(this.date)
+                titleHTML:this.switchYM ? this.drawSelect(this.date) : this.drawTitle(this.date)
             }
-            //this.lightSelfDate(this.date);
         }else if(this.partner!=null){
             var partnerDate=this.partner.getDate();
             return {
                 gridHTML:this.drawGrid(partnerDate),
-                titleHTML:this.drawTitle(partnerDate)
+                titleHTML:this.switchYM ? this.drawSelect(this.date) : this.drawTitle(partnerDate)
             }
-            //this.related();
         }else{
             return {
                 gridHTML:this.drawGrid(),
-                titleHTML:this.drawTitle()
+                titleHTML:this.switchYM ? this.drawSelect() : this.drawTitle()
             }
         }
     },
@@ -226,20 +344,7 @@ Calendar.prototype={
             }
         }
     },
-    drawTitle:function(day){
-        var crtDate=new Date(),
-            year,
-            month;
-        if(typeof day!='undefined'){
-            var day=this.analysisDate(day);
-            year=day.year;
-            month=day.month;
-        }else{
-            year=crtDate.getFullYear();
-            month=crtDate.getMonth()+ 1;
-        }
-        return year+'年'+month+'月';
-    },
+
     positionShell:function(){
         var x=this.input.offset().left,
             y=this.input.offset().top,
@@ -276,16 +381,19 @@ Calendar.prototype={
     },
     lightMiddleDates:function(begin,end){
         var _this=this;
-        var begin=_this.analysisDate(begin),
-            end=_this.analysisDate(end);
-        if(begin.year>end.year || begin.month>end.month){
-            $('#calendar_'+_this.inputId+' td[date="'+date+'"]').nextAll().addClass('during');
-            $('#calendar_'+_this.inputId+' td[date="'+date+'"]').parent().nextAll().find('td').addClass('during');
+        var beginObj=_this.analysisDate(begin),
+            endObj=_this.analysisDate(end);
+        if(beginObj.year<endObj.year || beginObj.month<endObj.month){
+            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').nextAll().addClass('during');
+            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').parent().nextAll().find('td').addClass('during');
+
+            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').prevAll().addClass('during');
+            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').parent().prevAll().find('td').addClass('during');
         }else{
             $('#calendar_'+_this.inputId+' td').filter(function(){
                 if(typeof $(this).attr('date')!='undefined'){
                     var date=_this.analysisDate($(this).attr('date')).date;
-                    return 1*date>1*begin.date && 1*date<1*end.date;
+                    return 1*date>1*beginObj.date && 1*date<1*endObj.date;
                 }
             }).addClass('during');
         }
@@ -293,6 +401,15 @@ Calendar.prototype={
     inputDate:function(){
         var date=this.date;
         this.input.val(date);
+    },
+    selecteDate:function(date){
+        var date=this.analysisDate(date);
+        $('#calendar_'+this.inputId+' .date_box_year').value=date.year;
+        $('#calendar_'+this.inputId+' .date_box_month').value=date.month;
+    },
+    writeDate:function(date){
+        var gridHTML=this.drawTitle(date);
+        $('#calendar_'+this.inputId+' .date_box_title').html(gridHTML);
     },
     /*base*/
     isLeap:function(year){
@@ -316,19 +433,71 @@ Calendar.prototype={
             return false;
         }
     },
-    analysisDate:function(date){
-        var a=date.split('-');
-        return {
-            year:a[0],
-            month:a[1],
-            date:a[2]
+    isFirstMonth:function(month){
+        if(month==1){
+            return true;
         }
+        return false;
+    },
+    isLastMonth:function(month){
+        if(month==12){
+            return true;
+        }
+        return false;
+    },
+    analysisDate:function(date){
+        /*date:year-month or year-month-date*/
+        var a=date.split('-');
+        if(a.length==2){
+            return {
+                year:a[0],
+                month:a[1]
+            }
+        }else{
+            return {
+                year:a[0],
+                month:a[1],
+                date:a[2]
+            }
+        }
+    },
+    lastMonth:function(date){
+        /*date:year-month or year-month-date*/
+        var date=this.analysisDate(date),
+            resultY,
+            resultM;
+        if(this.isFirstMonth(date.month)){
+            resultY=date.year-1;
+            resultM=12;
+        }else{
+            resultY=date.year;
+            resultM=date.month-1;
+        }
+        return resultY+'-'+resultM;
+    },
+    nextMonth:function(date){
+        /*date:year-month or year-month-date*/
+        var date=this.analysisDate(date),
+            resultY,
+            resultM;
+        if(this.isLastMonth(date.month)){
+            resultY=1*date.year+1;
+            resultM=1;
+        }else{
+            resultY=date.year;
+            resultM=1*date.month+1;
+        }
+        return resultY+'-'+resultM;
     },
     getDate:function(){
         return this.date;
     },
     setDate:function(date){
+        /*date:year-month-date*/
         this.date=date;
+        if(this.switchYM){
+            this.selecteDate();
+        }
         this.inputDate();
         this.howToDecorate();
     },
@@ -342,6 +511,13 @@ Calendar.prototype={
         if(partner.partner==null){
             partner.setPartner(this,!first);
         }
+    },
+    setView:function(date){
+        /*date:year-month or year-month-date*/
+        this.view=date;
+    },
+    getView:function(){
+        return this.view;
     }
 
 }
