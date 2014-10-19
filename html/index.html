@@ -3,8 +3,23 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <link type="text/css" rel="stylesheet" href="/style/calendar.css">
+    <script src="/script/lib/jquery-2.1.1.min.js"></script>
+    <script src="/script/calendar.js"></script>
 </head>
 <body>
-    <input type="text"/>
+    <div class="calendar_wrap">
+        <span class="calendar_icon"></span>
+        <input type="text" id="C_begin" class="calendar_input"/>
+    </div>
+    <div class="calendar_box" style="width:180px;top:32px;left:10px">
+        <div class="calendar_btn">
+            <span class="btn_close">关闭</span>
+            <span class="arrow_prev">上月</span>
+            <span class="arrow_next">下月</span>
+        </div>
+
+    </div>
+
 </body>
 </html>

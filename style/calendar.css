@@ -1,0 +1,50 @@
+.calendar_wrap{
+    position:relative;
+    display:inline-block;
+    zoom:1;
+}
+.calendar_input{
+
+}
+.calendar_icon{
+    width:20px;
+    height:15px;
+    position:absolute;
+    right:3px;
+    top:50%;
+    margin-top:-7.5px;
+    background:url(/image/calender-icon.png) -37px -76px no-repeat;
+}
+.calendar_box{
+    position:absolute;
+    border-width:1px;
+    border-style: solid;
+    border-color:#85BEE5 #3485C0;
+    padding:5px 30px 15px;
+}
+.calendar_btn span{
+    background-image:url(/image/calender-icon.png);
+    background-repeat: no-repeat;
+    font-size:0px;
+    text-indent:-1000px;
+    position:absolute;
+}
+.btn_close{
+    width:17px;
+    height:17px;
+    top:10px;
+    right:10px;
+    background-position:-40px 0;
+    cursor:pointer;
+}
+.arrow_prev{
+    width:20px;
+    height:38px;
+    background-position:0 0;
+    
+}
+#C_begin{
+    width:180px;
+    height:20px;
+    border:1px solid #ccc;
+}
