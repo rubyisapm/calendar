@@ -1,3 +1,6 @@
+body{
+    font-size:12px;
+}
 .calendar_wrap{
     position:relative;
     display:inline-block;
@@ -20,13 +23,15 @@
     border-width:1px;
     border-style: solid;
     border-color:#85BEE5 #3485C0;
-    padding:5px 30px 15px;
+    padding:10px 35px 15px;
+    display:none;
 }
 .calendar_btn span{
     background-image:url(/image/calender-icon.png);
     background-repeat: no-repeat;
     font-size:0px;
-    text-indent:-1000px;
+    line-height:0px;
+    _text-indent:-100px;
     position:absolute;
 }
 .btn_close{
@@ -41,10 +46,63 @@
     width:20px;
     height:38px;
     background-position:0 0;
-    
+    top:50%;
+    left:5px;
+    margin-top:-19px;
+    cursor:pointer;
+}
+.arrow_next{
+    width:20px;
+    height:38px;
+    background-position:-20px 0;
+    top:50%;
+    right:5px;
+    margin-top:-19px;
+    cursor:pointer;
+}
+.arrow_prev_disabled{
+    background-position:0 -38px;
+    cursor:default;
+}
+.arrow_next_disabled{
+    background-position:-20px -38px;
+    cursor:default;
 }
 #C_begin{
     width:180px;
     height:20px;
+    border:1px solid #E4E4E4;
+}
+.date_box_title{
+    font:bold 12px/2 Arial;
+    text-align:center;
+    color:#5f5f5f;
+    border-bottom:1px solid #E4E4E4;
+    margin:0;
+}
+.date_table{
+    border-collapse: collapse;
+}
+.date_table td{
+    text-align:center;
+    color:#5F5F5F;
+    padding:0;
+}
+.date_table td a{
+    display:block;
+    padding:4px 6px;
+    cursor:pointer
+}
+.date_table td a:hover{
+    background-color:#8ACAE7
+}
+.date_table td.chosen a{
+    background-color:#8ACAE7
+}
+.date_table td.partnerDate a{
+    background-color:#D8BF11
+}
+
+.date_table tbody td{
     border:1px solid #ccc;
 }
