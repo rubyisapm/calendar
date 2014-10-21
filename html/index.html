@@ -8,11 +8,11 @@
     <script src="/script/calendar.js"></script>
 </head>
 <body>
-    <div class="calendar_wrap">
-        <span class="calendar_icon"></span>
-        <input type="text" id="C_begin" class="calendar_input"/>
-    </div>
-
+    <!--<div class="calendar_wrap">-->
+        <!--<span class="calendar_icon"></span>-->
+        <input type="text" id="C_begin" class="calendar_input"/> -
+    <!--</div>-->
+        <input type="text" id="C_end" class="calendar_input"/>
     <!--<div class="calendar_box" style="top:32px;left:10px">
         <div class="calendar_btn">
             <span class="btn_close">关闭</span>
@@ -84,8 +84,12 @@
         </div>
     </div>-->
 <script>
-    var calendar=new Calendar('C_begin');
-    calendar.init();
+    var calendar_C_begin=new Calendar('C_begin');
+    var calendar_C_end=new Calendar('C_end');
+    calendar_C_begin.setPartner(calendar_C_end,true);
+    calendar_C_begin.init();
+    calendar_C_end.init();
+
 </script>
 </body>
 </html>

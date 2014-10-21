@@ -5,9 +5,10 @@ body{
     position:relative;
     display:inline-block;
     zoom:1;
+
 }
 .calendar_input{
-
+    border:1px solid #E4E4E4;
 }
 .calendar_icon{
     width:20px;
@@ -16,7 +17,14 @@ body{
     right:3px;
     top:50%;
     margin-top:-7.5px;
-    background:url(/image/calender-icon.png) -37px -76px no-repeat;
+    background-image:url(/image/calender-icon.png);
+    background-repeat: no-repeat;
+}
+.calendar_icon_begin{
+    background-position:  -37px -76px;
+}
+.calendar_icon_end{
+    background-position:  -37px -91px;
 }
 .calendar_box{
     position:absolute;
@@ -24,6 +32,7 @@ body{
     border-style: solid;
     border-color:#85BEE5 #3485C0;
     padding:10px 35px 15px;
+    background-color:#fff;
     display:none;
 }
 .calendar_btn span{
@@ -71,7 +80,10 @@ body{
 #C_begin{
     width:180px;
     height:20px;
-    border:1px solid #E4E4E4;
+}
+#C_end{
+    width:200px;
+    height:20px;
 }
 .date_box_title{
     font:bold 12px/2 Arial;
@@ -88,6 +100,9 @@ body{
     color:#5F5F5F;
     padding:0;
 }
+.date_table thead td{
+    padding:4px 6px;
+}
 .date_table td a{
     display:block;
     padding:4px 6px;
@@ -96,11 +111,15 @@ body{
 .date_table td a:hover{
     background-color:#8ACAE7
 }
-.date_table td.chosen a{
+.date_table td.blueDate a{
     background-color:#8ACAE7
 }
-.date_table td.partnerDate a{
+.date_table td.yellowDate a{
     background-color:#D8BF11
+}
+.date_table td.disabled a{
+    background-color:#FAFAFA;
+    cursor:default;
 }
 
 .date_table tbody td{

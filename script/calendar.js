@@ -29,30 +29,25 @@ Calendar.prototype={
         TZMONTH:[4,6,9,11]
     },
     init:function(){
+        this.wrap();
         this.bindEvt();
     },
     bindEvt:function(){
         var _this=this;
-        _this.input.on('click',function(e){
+        _this.wraper.on('click',function(e){
             e.stopPropagation();
+            $('.calendar_box').hide();
             if($('#calendar_'+_this.inputId).length<=0){
                 $('body').append(_this.drawShell());
             }
-            if(_this.partner!=null){
-                var partnerDate=_this.partner.getDate();
-                $('#calendar_'+_this.inputId+' tbody').empty().append(_this.drawGrid(partnerDate));
-                _this.related();
-            }else{
-                $('#calendar_'+_this.inputId+' tbody').empty().append(_this.drawGrid());
-            }
-
             $('#calendar_'+_this.inputId).show();
-
-            $('#calendar_'+$(this).attr('id')).delegate('td','click',function(e){
+            _this.howToDecorate();
+            $('#calendar_'+_this.inputId+' td[class!="disabled"]').on('click',function(e){
                 e.stopPropagation();
-                $(this).parents('tbody').find('td').removeClass('chosen');
-                $(this).addClass('chosen');
                 _this.setDate($(this).attr('date'));
+            })
+            $('#calendar_'+_this.inputId).on('click',function(e){
+                e.stopPropagation();
             })
         })
 
@@ -61,15 +56,28 @@ Calendar.prototype={
         })
     },
     /*rendar*/
+    wrap:function(){
+        var iconHTML='';
+        this.input.wrap('<div class="calendar_wrap"></div>');
+        if(this.partner!=null && !(this.begin)){
+            iconHTML='<span class="calendar_icon calendar_icon_end"></span>';
+        }else{
+            iconHTML='<span class="calendar_icon calendar_icon_begin"></span>';
+        }
+        this.input.before(iconHTML);
+        this.wraper=this.input.parent();
+    },
     drawShell:function(){
-        var shellHTML='<div class="calendar_box" id="calendar_'+this.input.attr("id")+'">'+
+        var pos=this.positionShell();
+        var HTMLs=this.howToDraw();
+        var shellHTML='<div class="calendar_box" id="calendar_'+this.input.attr("id")+'" style="top:'+pos.top+';left:'+pos.left+'">'+
                         '<div class="calendar_btn">'+
                             '<span class="btn_close">关闭</span>'+
                             '<span class="arrow_prev">上月</span>'+
                             '<span class="arrow_next">下月</span>'+
                         '</div>'+
                         '<div class="date_box">'+
-                            '<h2 class="date_box_title">2014年12月</h2>'+
+                            '<h2 class="date_box_title">'+HTMLs.titleHTML+'</h2>'+
                             '<table class="date_table">'+
                                 '<thead>'+
                                     '<tr>'+
@@ -83,6 +91,7 @@ Calendar.prototype={
                                     '</tr>'+
                                 '</thead>'+
                                 '<tbody>'+
+                                    HTMLs.gridHTML+
                                 '</tbody>'+
                             '</table>'+
                         '</div>'+
@@ -98,6 +107,7 @@ Calendar.prototype={
             tableHTML='',
             firstDay=0;
         if(typeof day!='undefined'){
+            var day=this.analysisDate(day);
             year=day.year;
             month=day.month;
             date=day.date;
@@ -145,28 +155,112 @@ Calendar.prototype={
             }
         })
 
-        tableHTML= a.join(',');
+        tableHTML= a.join('');
         return tableHTML;
 
     },
-    positionShell:function(shell){
+    howToDraw:function(){
+        if(typeof this.date !="undefined"){
+            return {
+                gridHTML:this.drawGrid(this.date),
+                titleHTML:this.drawTitle(this.date)
+            }
+            //this.lightSelfDate(this.date);
+        }else if(this.partner!=null){
+            var partnerDate=this.partner.getDate();
+            return {
+                gridHTML:this.drawGrid(partnerDate),
+                titleHTML:this.drawTitle(partnerDate)
+            }
+            //this.related();
+        }else{
+            return {
+                gridHTML:this.drawGrid(),
+                titleHTML:this.drawTitle()
+            }
+        }
+    },
+    howToDecorate:function(){
+        if(this.partner!=null){
+            var date=this.getDate(),
+                partnerDate=this.partner.getDate();
+            if(this.begin){
+                if(typeof date!='undefined'){
+                    this.lightBlueDate(date);
+                }
+                if(typeof partnerDate!='undefined'){
+                    this.lightYellowDate(partnerDate);
+                    this.disabledDates(partnerDate,false);
+                }
+            }else{
+                if(typeof date!='undefined'){
+                    this.lightYellowDate(date);
+                }
+                if(typeof partnerDate!='undefined'){
+                    this.lightBlueDate(partnerDate);
+                    this.disabledDates(partnerDate,true);
+                }
+            }
+        }else{
+            if(typeof date!='undefined'){
+                this.lightBlueDate(date);
+            }
+        }
+    },
+    drawTitle:function(day){
+        var crtDate=new Date(),
+            year,
+            month;
+        if(typeof day!='undefined'){
+            var day=this.analysisDate(day);
+            year=day.year;
+            month=day.month;
+        }else{
+            year=crtDate.getFullYear();
+            month=crtDate.getMonth()+ 1;
+        }
+        return year+'年'+month+'月';
+    },
+    positionShell:function(){
         var x=this.input.offset().left,
             y=this.input.offset().top,
-            h=this.input.height();
-        shell.css({
-            top:y+h,
-            left:x
-        })
+            h=parseInt(this.input.outerHeight());
+        return {
+            top:y+h+'px',
+            left:x+'px'
+        }
     },
     showShell:function(shell){
         shell.show();
     },
-    related:function(){
-        var relatedDate=this.partner.getDate();
-        this.lightDate(relatedDate);
+    lightYellowDate:function(date){
+        $('#calendar_'+this.inputId+' .yellowDate').removeClass('yellowDate disabled');
+        $('#calendar_'+this.inputId).find('td[date='+date+']').addClass('yellowDate');
     },
-    lightDate:function(date){
-        $('#calendar_'+_this.inputId).find('td[date='+date+']').addClass('partnerDate');
+    lightBlueDate:function(date){
+        $('#calendar_'+this.inputId+' .blueDate').removeClass('blueDate disabled');
+        $('#calendar_'+this.inputId).find('td[date='+date+']').addClass('blueDate');
+    },
+    disabledDates:function(date,before){
+        /*
+        * date:某个时间点
+        * before:Boolean
+        * */
+         if(before){
+            $('#calendar_'+this.inputId+' td[date="'+date+'"]').prevAll().addClass('disabled');
+            $('#calendar_'+this.inputId+' td[date="'+date+'"]').parent().prevAll().find('td').addClass('disabled');
+        }else{
+            $('#calendar_'+this.inputId+' td[date="'+date+'"]').nextAll().addClass('disabled');
+            $('#calendar_'+this.inputId+' td[date="'+date+'"]').parent().nextAll().find('td').addClass('disabled');
+        }
+
+    },
+    lightMiddleDates:function(begin,end){
+
+    },
+    inputDate:function(){
+        var date=this.date;
+        this.input.val(date);
     },
     /*base*/
     isLeap:function(year){
@@ -190,11 +284,33 @@ Calendar.prototype={
             return false;
         }
     },
+    analysisDate:function(date){
+        var a=date.split('-');
+        return {
+            year:a[0],
+            month:a[1],
+            date:a[2]
+        }
+    },
     getDate:function(){
         return this.date;
     },
     setDate:function(date){
         this.date=date;
+        this.inputDate();
+        this.howToDecorate();
+    },
+    setPartner:function(partner,first){
+        /*
+        * partner: Calendar object
+        * first:boolean
+        * */
+        this.partner=partner;
+        this.begin=first;
+        if(partner.partner==null){
+            partner.setPartner(this,!first);
+        }
+
     }
 
 }
