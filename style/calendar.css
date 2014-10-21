@@ -121,7 +121,9 @@ body{
     background-color:#FAFAFA;
     cursor:default;
 }
-
+.date_table td.during a{
+    background-color:#8ACAE7;
+}
 .date_table tbody td{
     border:1px solid #ccc;
 }

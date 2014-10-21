@@ -49,11 +49,30 @@ Calendar.prototype={
             $('#calendar_'+_this.inputId).on('click',function(e){
                 e.stopPropagation();
             })
+
+            if(_this.partner!=null){
+                $('#calendar_'+_this.inputId+' td').hover(function(){
+                    var end=_this.partner.getDate(),
+                        begin=$(this).attr('date');
+                    if(typeof end!='undefined' && typeof begin!='undefined'){
+                        if(this.first){
+                            _this.lightMiddleDates(begin,end);
+                        }else{
+                            _this.lightMiddleDates(end,begin);
+                        }
+                    }
+                },function(){
+                    $('#calendar_'+_this.inputId+' .during').removeClass('during');
+                })
+            }
+
         })
 
         $(window).on('click',function(e){
-            $('#calendar_'+_this.input.attr('id')).hide();
+            $('#calendar_'+_this.inputId.attr('id')).hide();
         })
+
+
     },
     /*rendar*/
     wrap:function(){
@@ -256,7 +275,18 @@ Calendar.prototype={
 
     },
     lightMiddleDates:function(begin,end){
-
+        var _this=this;
+        var begin=_this.analysisDate(begin),
+            end=_this.analysisDate(end);
+        if(begin.year>end.year || begin.month>end.month){
+            $('#calendar_'+_this.inputId+' td[date="'+date+'"]').nextAll().addClass('during');
+            $('#calendar_'+_this.inputId+' td[date="'+date+'"]').parent().nextAll().find('td').addClass('during');
+        }else{
+            $('#calendar_'+_this.inputId+' td').filter(function(){
+                var date=_this.analysisDate($(this).attr('date')).date;
+                return date>begin.date && date<end.date;
+            }).addClass('during');
+        }
     },
     inputDate:function(){
         var date=this.date;
