@@ -342,7 +342,6 @@ Calendar.prototype={
         if(partner.partner==null){
             partner.setPartner(this,!first);
         }
-
     }
 
 }
