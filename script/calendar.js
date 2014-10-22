@@ -45,6 +45,7 @@ Calendar.prototype={
             $('#calendar_'+_this.inputId+' td[class!="disabled"]').on('click',function(e){
                 e.stopPropagation();
                 _this.setDate($(this).attr('date'));
+                $('#calendar_'+_this.inputId).hide();
             })
             $('#calendar_'+_this.inputId).on('click',function(e){
                 e.stopPropagation();
@@ -55,7 +56,7 @@ Calendar.prototype={
                     var end=_this.partner.getDate(),
                         begin=$(this).attr('date');
                     if(typeof end!='undefined' && typeof begin!='undefined'){
-                        if(this.first){
+                        if(_this.begin){
                             _this.lightMiddleDates(begin,end);
                         }else{
                             _this.lightMiddleDates(end,begin);
@@ -65,11 +66,10 @@ Calendar.prototype={
                     $('#calendar_'+_this.inputId+' .during').removeClass('during');
                 })
             }
-
         })
 
         $(window).on('click',function(e){
-            $('#calendar_'+_this.inputId.attr('id')).hide();
+            $('#calendar_'+_this.inputId).hide();
         })
 
 
@@ -283,8 +283,10 @@ Calendar.prototype={
             $('#calendar_'+_this.inputId+' td[date="'+date+'"]').parent().nextAll().find('td').addClass('during');
         }else{
             $('#calendar_'+_this.inputId+' td').filter(function(){
-                var date=_this.analysisDate($(this).attr('date')).date;
-                return date>begin.date && date<end.date;
+                if(typeof $(this).attr('date')!='undefined'){
+                    var date=_this.analysisDate($(this).attr('date')).date;
+                    return 1*date>1*begin.date && 1*date<1*end.date;
+                }
             }).addClass('during');
         }
     },
