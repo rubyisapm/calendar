@@ -10,6 +10,19 @@ function Calendar(input,ops){
     * input:true or false 是否允许手动输入日期
     * view:'now' or 具体日期如'2011-10-10' 当前显示的月份,当连续滑动时需要一个值记录当前的日期显示状态是哪个月
     * */
+    var HOLIDAY={
+        '1-1':'元旦',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':'',
+        '':''
+    }
     var defaults={
         holiday:true,
         partner:null,
@@ -86,9 +99,9 @@ Calendar.prototype={
                     begin=$(this).attr('date');
                 if(typeof end!='undefined' && typeof begin!='undefined'){
                     if(_this.begin){
-                        _this.lightMiddleDates(begin,end);
+                        _this.lightMiddleDates(begin,end,"during");
                     }else{
-                        _this.lightMiddleDates(end,begin);
+                        _this.lightMiddleDates(end,begin,"during");
                     }
                 }
             },function(){
@@ -102,10 +115,8 @@ Calendar.prototype={
         $('#calendar_'+_this.inputId+' .arrow_prev').on('click',function(){
             var date=_this.view,
                 prevMonth=_this.lastMonth(date),
-                gridHTML=_this.drawGrid(prevMonth),
-                dateHTML=_this.drawTitle(prevMonth);
-            $('#calendar_'+_this.inputId+' .date_box_title').html(dateHTML);
-
+                gridHTML=_this.drawGrid(prevMonth);
+            $('#calendar_'+_this.inputId+' tbody').html(gridHTML);
             _this.setView(prevMonth);
             _this.bindEvt_chooseDate();
             if(_this.switchYM){
@@ -118,9 +129,8 @@ Calendar.prototype={
         $('#calendar_'+_this.inputId+' .arrow_next').on('click',function(){
             var date=_this.view,
                 nextMonth=_this.nextMonth(date),
-                gridHTML=_this.drawGrid(nextMonth),
-                dateHTML=_this.drawTitle(nextMonth);
-            $('#calendar_'+_this.inputId+' .date_box_title').html(dateHTML);
+                gridHTML=_this.drawGrid(nextMonth);
+            $('#calendar_'+_this.inputId+' tbody').html(gridHTML);
             _this.setView(nextMonth);
             _this.bindEvt_chooseDate();
             if(_this.switchYM){
@@ -159,9 +169,15 @@ Calendar.prototype={
         this.wraper=this.input.parent();
     },
     drawShell:function(){
-        var pos=this.positionShell();
-        var HTMLs=this.howToDraw();
-        var shellHTML='<div class="calendar_box" id="calendar_'+this.input.attr("id")+'" style="top:'+pos.top+';left:'+pos.left+'">'+
+        var pos=this.positionShell(),
+            HTMLs=this.howToDraw(),
+            boxClass='';
+        if(this.partner!=null && !this.begin){
+            boxClass='calendar_box_end';
+        }else{
+            boxClass='calendar_box_begin';
+        }
+        var shellHTML='<div class="calendar_box '+boxClass+'" id="calendar_'+this.input.attr("id")+'" style="top:'+pos.top+';left:'+pos.left+'">'+
                         '<div class="calendar_btn">'+
                             '<span class="btn_close">关闭</span>'+
                             '<span class="arrow_prev">上月</span>'+
@@ -251,6 +267,7 @@ Calendar.prototype={
 
     },
     drawSelect:function(day){
+        console.log(day);
         var crtDate=new Date(),
             year,
             month,
@@ -304,11 +321,11 @@ Calendar.prototype={
                 gridHTML:this.drawGrid(this.date),
                 titleHTML:this.switchYM ? this.drawSelect(this.date) : this.drawTitle(this.date)
             }
-        }else if(this.partner!=null){
+        }else if(this.partner!=null && typeof this.partner.getDate()!='undefined'){
             var partnerDate=this.partner.getDate();
             return {
                 gridHTML:this.drawGrid(partnerDate),
-                titleHTML:this.switchYM ? this.drawSelect(this.date) : this.drawTitle(partnerDate)
+                titleHTML:this.switchYM ? this.drawSelect(partnerDate) : this.drawTitle(partnerDate)
             }
         }else{
             return {
@@ -322,18 +339,27 @@ Calendar.prototype={
             var date=this.getDate(),
                 partnerDate=this.partner.getDate();
             if(this.begin){
-                if(typeof date!='undefined'){
+                if(typeof date!='undefined' && typeof partnerDate!='undefined'){
                     this.lightBlueDate(date);
-                }
-                if(typeof partnerDate!='undefined'){
+                    this.lightYellowDate(partnerDate);
+                    this.disabledDates(partnerDate,false);
+                    this.lightMiddleDates(date,partnerDate,'between');
+                }else if(typeof date!='undefined'){
+                    this.lightBlueDate(date);
+                }else if(typeof partnerDate!='undefined'){
                     this.lightYellowDate(partnerDate);
                     this.disabledDates(partnerDate,false);
                 }
+
             }else{
-                if(typeof date!='undefined'){
+                if(typeof date!='undefined' && typeof partnerDate!='undefined'){
                     this.lightYellowDate(date);
-                }
-                if(typeof partnerDate!='undefined'){
+                    this.lightBlueDate(partnerDate);
+                    this.disabledDates(partnerDate,true);
+                    this.lightMiddleDates(partnerDate,date,'between');
+                }else if(typeof date!='undefined'){
+                    this.lightYellowDate(date);
+                }else if(typeof partnerDate!='undefined'){
                     this.lightBlueDate(partnerDate);
                     this.disabledDates(partnerDate,true);
                 }
@@ -344,7 +370,6 @@ Calendar.prototype={
             }
         }
     },
-
     positionShell:function(){
         var x=this.input.offset().left,
             y=this.input.offset().top,
@@ -379,23 +404,23 @@ Calendar.prototype={
         }
 
     },
-    lightMiddleDates:function(begin,end){
+    lightMiddleDates:function(begin,end,color){
         var _this=this;
         var beginObj=_this.analysisDate(begin),
             endObj=_this.analysisDate(end);
         if(beginObj.year<endObj.year || beginObj.month<endObj.month){
-            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').nextAll().addClass('during');
-            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').parent().nextAll().find('td').addClass('during');
+            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').nextAll().addClass(color);
+            $('#calendar_'+_this.inputId+' td[date="'+begin+'"]').parent().nextAll().find('td').addClass(color);
 
-            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').prevAll().addClass('during');
-            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').parent().prevAll().find('td').addClass('during');
+            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').prevAll().addClass(color);
+            $('#calendar_'+_this.inputId+' td[date="'+end+'"]').parent().prevAll().find('td').addClass(color);
         }else{
             $('#calendar_'+_this.inputId+' td').filter(function(){
                 if(typeof $(this).attr('date')!='undefined'){
                     var date=_this.analysisDate($(this).attr('date')).date;
                     return 1*date>1*beginObj.date && 1*date<1*endObj.date;
                 }
-            }).addClass('during');
+            }).addClass(color);
         }
     },
     inputDate:function(){
@@ -404,8 +429,8 @@ Calendar.prototype={
     },
     selecteDate:function(date){
         var date=this.analysisDate(date);
-        $('#calendar_'+this.inputId+' .date_box_year').value=date.year;
-        $('#calendar_'+this.inputId+' .date_box_month').value=date.month;
+        $('#calendar_'+this.inputId+' .date_box_year').val(date.year);
+        $('#calendar_'+this.inputId+' .date_box_month').val(date.month);
     },
     writeDate:function(date){
         var gridHTML=this.drawTitle(date);
@@ -444,6 +469,13 @@ Calendar.prototype={
             return true;
         }
         return false;
+    },
+    isHoliday:function(date){
+        if(date in this.holiday){
+            return true;
+        }else{
+            return false;
+        }
     },
     analysisDate:function(date){
         /*date:year-month or year-month-date*/
@@ -495,9 +527,6 @@ Calendar.prototype={
     setDate:function(date){
         /*date:year-month-date*/
         this.date=date;
-        if(this.switchYM){
-            this.selecteDate();
-        }
         this.inputDate();
         this.howToDecorate();
     },
