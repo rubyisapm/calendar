@@ -17,7 +17,7 @@ $('#end').datePicker({
 });
 ```
 图示
-![单日历](/readmeImage/single.jpg "图示")
+![单日历](/readmeImages/single.png "图示")
 
 
 * 双日历
@@ -31,7 +31,7 @@ $('#double').datePicker({
 })
 ```
 图示
-![双日历](/readmeImage/double.jpg "图示")
+![双日历](/readmeImages/double.png "图示")
 
 #### 参数解析
 * double: [boolean] true or false
