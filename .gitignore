@@ -29,6 +29,11 @@
 *.sql
 *.sqlite
 
+
+# backup #
+######################
+.backup
+
 # OS generated files #
 ######################
 .DS_Store*
