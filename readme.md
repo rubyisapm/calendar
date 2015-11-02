@@ -43,13 +43,16 @@ $('#double').datePicker({
 * 分离式双日历
 
 ```
-var m_beginCalendar=$('#m_begin').monthPicker();
-$('#m_end').monthPicker({
-   clear:true,
-   partner:m_beginCalendar.calendar,
-   begin:false,
-   date:'2015/3'
-})
+var d_beginCalendar = $('#d_begin').datePicker({
+        clear: true
+    });
+$('#d_end').datePicker({
+  clear: true,
+  switchYM: true,
+  partner: d_beginCalendar.calendar,
+  begin: false,
+  date: '2015/4/10'
+});
 ```
 
 #### 参数解析
@@ -91,14 +94,15 @@ $('#m_double').monthPicker({
 图示
 ![双月历](/readmeImages/month_double.png "图示")
 
-* 结合式双月历
+* 分离式双月历
 
 ```
-$('#m_double').monthPicker({
-   double:true,
-   beginDate:'2015/3',
-   endDate:'2016/6',
-   limited:'3y'
+var m_beginCalendar=$('#m_begin').monthPicker();
+$('#m_end').monthPicker({
+  clear:true,
+  partner:m_beginCalendar.calendar,
+  begin:false,
+  date:'2015/3'
 })
 ```
 
