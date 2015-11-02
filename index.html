@@ -12,17 +12,17 @@
     </style>
 </head>
 <body>
-<div style="float:left;margin-right:100px;">
-    开始日期：<input type="text" id="begin" readonly="readonly"/><br/>
-    结束日期：<input type="text" id="end" readonly="readonly"/><br/>
-    单独日期：<input type="text" id="single" readonly="readonly"/><br/>
-    双日期：<input type="text" id="double" readonly="readonly"/>时间跨度不得超过3个月
+<div style="float:left;margin-right:200px;">
+    单独日期：<input type="text" id="month" readonly="readonly"/><br/>
+    开始日期：<input type="text" id="m_begin" readonly="readonly"/><br/>
+    结束日期：<input type="text" id="m_end" readonly="readonly"/><br/>
+    双日期：<input type="text" id="m_double" readonly="readonly"/>时间跨度不得超过3年
 </div>
 
 <div style="float:left">
+    单独日期：<input type="text" id="date" readonly="readonly"/><br/>
     开始日期：<input type="text" id="d_begin" readonly="readonly"/><br/>
     结束日期：<input type="text" id="d_end" readonly="readonly"/><br/>
-    单独日期：<input type="text" id="d_single" readonly="readonly"/><br/>
     双日期：<input type="text" id="d_double" readonly="readonly"/>时间跨度不得超过3年
 </div>
 
@@ -32,6 +32,33 @@
 <script src="script/datePicker.js"></script>
 <script src="script/monthPicker.js"></script>
 <script>
+
+    $('#month').monthPicker({
+        clear:true,
+        date:'2015/3'
+    })
+
+    var m_beginCalendar=$('#m_begin').monthPicker();
+    $('#m_end').monthPicker({
+        clear:true,
+        partner:m_beginCalendar.calendar,
+        begin:false,
+        date:'2015/3'
+    })
+
+
+    $('#m_double').monthPicker({
+        double:true,
+        beginDate:'2015/3',
+        endDate:'2016/6',
+        limited:'3y'
+    })
+
+
+
+    $('#date').datePicker({
+        clear:true
+    })
 
     var d_beginCalendar = $('#d_begin').datePicker({
         clear: true
@@ -43,9 +70,7 @@
         begin: false,
         date: '2015/4/10'
     });
-    $('#d_single').datePicker({
-        clear:true
-    })
+
 
     $('#d_double').datePicker({
         double: true,
@@ -55,64 +80,9 @@
         limited: '3m'
     })
 
-    var beginCalendar=$('#begin').monthPicker();
-    $('#end').monthPicker({
-        clear:true,
-        partner:beginCalendar.calendar,
-        begin:false,
-        date:'2015/3'
-    })
-    $('#single').monthPicker({
-        clear:true,
-        date:'2015/3',
-        callback:function(){
-            //日期改变后的回调
-        }
-    })
 
-    $('#double').monthPicker({
-        double:true,
-        beginDate:'2015/3',
-        endDate:'2016/6',
-        limited:'3y'
-    })
 </script>
 
-<!--<div class="monthPicker_shell">
-    <div class="calendar_box calendar_box_begin" style="display: block;">
-        <div class="date_box">
-            <h2>
-                <span class="arrow_prev"><b></b></span>
-                <span class="year">2015年</span>
-                <span class="arrow_next"><b></b></span>
-            </h2>
-            <table class="date_table">
-                <tbody>
-                <tr>
-                    <td class="disabled">1</td>
-                    <td class="disabled">2</td>
-                    <td class="disabled">3</td>
-                </tr>
-                <tr>
-                    <td date="2015/10/4"><a>4</a></td>
-                    <td date="2015/10/5"><a>5</a></td>
-                    <td date="2015/10/6"><a>6</a></td>
-                </tr>
-                <tr>
-                    <td date="2015/10/11"><a>11</a></td>
-                    <td date="2015/10/12"><a>12</a></td>
-                    <td date="2015/10/13"><a>13</a></td>
-                </tr>
-                <tr>
-                    <td date="2015/10/18"><a>18</a></td>
-                    <td date="2015/10/19"><a>19</a></td>
-                    <td date="2015/10/20"><a>20</a></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>-->
 
 </body>
 </html>
