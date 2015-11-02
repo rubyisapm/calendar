@@ -63,7 +63,7 @@ Calendar.prototype = {
 
       if ($shell.length <= 0 || !viewEqualDate) {
         $shell.remove();
-        $('body').append(_this.drawShell());
+        $('body').append(_this.calendarBox());
         var $newShell=$('#shell_' + _this.inputId);
         $newShell.show();
         _this.decorate();
@@ -236,7 +236,7 @@ Calendar.prototype = {
     this.input.before(iconHTML);
     this.wraper = this.input.parent();
   },
-  drawShell: function () {
+  calendarBox: function () {
     var pos = this.positionShell(),
       calendarHTML=this.calendarBox();
       var shellHTML='<div ' +
