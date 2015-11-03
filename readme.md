@@ -66,7 +66,7 @@ clear | boolean | true/false | 是否含有清空按钮（针对单日历）
 date | string | 2015/10/10 | 单日历中的初始日期
 beginDate | string | 2015/10/10 | 双日历中的初始开始日期
 endDate | string | 2015/10/10 | 双日历中的初始结束日期
-
+sure | function对象 | function | 确定日期选择后的回调函数
 
 * 单月历
 
@@ -117,7 +117,7 @@ clear | boolean | true/false | 是否含有清空按钮（针对单月历）
 date | string | 2015/10/10 | 单月历中的初始日期
 beginDate | string | 2015/10/10 | 双月历中的初始开始日期
 endDate | string | 2015/10/10 | 双月历中的初始结束日期
-
+sure | function对象 | function | 确定日期选择后的回调函数
 
 
 

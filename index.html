@@ -35,15 +35,25 @@
 
     $('#month').monthPicker({
         clear:true,
-        date:'2015/3'
+        date:'2015/3',
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     })
 
-    var m_beginCalendar=$('#m_begin').monthPicker();
+    var m_beginCalendar=$('#m_begin').monthPicker({
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
+    });
     $('#m_end').monthPicker({
         clear:true,
         partner:m_beginCalendar.calendar,
         begin:false,
-        date:'2015/3'
+        date:'2015/3',
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     })
 
 
@@ -51,24 +61,36 @@
         double:true,
         beginDate:'2015/3',
         endDate:'2016/6',
-        limited:'3y'
+        limited:'3y',
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     })
 
 
 
     $('#date').datePicker({
-        clear:true
+        clear:true,
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     })
 
     var d_beginCalendar = $('#d_begin').datePicker({
-        clear: true
+        clear: true,
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     });
     $('#d_end').datePicker({
         clear: true,
         switchYM: true,
         partner: d_beginCalendar.calendar,
         begin: false,
-        date: '2015/4/10'
+        date: '2015/4/10',
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     });
 
 
@@ -76,8 +98,11 @@
         double: true,
         switchYM: true,
         beginDate: '2015/1/3',
-        endDate: '2015/9/10',
-        limited: '3m'
+        endDate: '2015/1/10',
+        limited: '3y',
+        sure:function(){
+            console.log('确定日期后的回调');
+        }
     })
 
 

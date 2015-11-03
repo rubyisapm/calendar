@@ -122,6 +122,7 @@ Calendar_monthPicker.prototype = {
         _this.setTempDate($(this).attr('data-month'));
       }else{
         _this.setDate($(this).attr('data-month'));
+
       }
 
       if (_this.hasPartnerDate()) {
@@ -138,6 +139,11 @@ Calendar_monthPicker.prototype = {
       if (typeof _this.ops.callback == 'function') {
         _this.ops.callback.call(_this);
       }
+
+      if(!_this.ops.double && typeof _this.ops.sure == 'function'){
+        _this.ops.sure();
+      }
+
 
     })
   },
@@ -717,10 +723,14 @@ $.fn.extend({
               verify = _this.verify(beginDate, endDate, limited).pass;
             }
             if (verify) {
-              $input.val(beginDate + '-' + endDate);
-              shell.hide();
               $input.beginCalendar.setDate(beginDate);
               $input.endCalendar.setDate(endDate);
+              $input.val(beginDate + '-' + endDate);
+              shell.hide();
+              if(typeof $input.ops.sure=='function'){
+                $input.ops.sure();
+              }
+
             } else {
               alert(_this.verify(beginDate, endDate, limited).msg)
             }
@@ -784,7 +794,8 @@ $.fn.extend({
       date: '',//单日历中的日期
       beginDate: '',//double中的开始日期
       endDate: '',//double中的结束日期
-      verify: false
+      verify: false,
+      sure:''
     };
     var $input = $(this);
     $input.ops = $.extend(true, {}, defaults, ops);

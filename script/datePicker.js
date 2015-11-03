@@ -180,12 +180,18 @@ Calendar_datePicker.prototype = {
         _this.setTempDate($(this).attr('date'));
       }else{
         _this.setDate($(this).attr('date'));
+
+
       }
       _this.decorate();
       _this.setView($(this).attr('date'));
       var callback=_this.ops.callback;
       if(typeof callback=='function'){
         callback.call(_this);
+      }
+
+      if(!_this.ops.double && typeof _this.ops.sure == 'undefined'){
+        _this.ops.sure();
       }
 
     })
@@ -470,7 +476,7 @@ Calendar_datePicker.prototype = {
       month = crtDate.getMonth() + 1;
     }
     selectYearHTML += '<select class="date_box_year">';
-    for (var i = 1970; i <= 1 * year + 3; i++) {
+    for (var i = 1970; i <= new Date().getFullYear() + 3; i++) {
       if (year == i) {
         selectYearHTML += '<option selected="selected" value="' + i + '">' + i + '</option>';
       } else {
@@ -1076,10 +1082,13 @@ $.fn.extend({
               verify=_this.verify(beginDate,endDate,limited).pass;
             }
             if(verify) {
-              $input.val(beginDate + '-' + endDate);
-              shell.hide();
               $input.beginCalendar.setDate(beginDate);
               $input.endCalendar.setDate(endDate);
+              $input.val(beginDate + '-' + endDate);
+              shell.hide();
+              if(typeof $input.ops.sure == 'undefined'){
+                $input.ops.sure();
+              }
             }else{
               alert(_this.verify(beginDate,endDate,limited).msg)
             }
@@ -1104,7 +1113,7 @@ $.fn.extend({
           bd=begin.split('/'),
           ed=end.split('/'),
           y1=bd[0],
-          y2=bd[0],
+          y2=ed[0],
           m1=bd[1],
           m2=ed[1]*1+12*(y2-y1),
           d1=bd[2],
@@ -1117,12 +1126,12 @@ $.fn.extend({
             };
           case 'm':
             return {
-              pass:m2-m1<howmany || (m2-m1==howmany && d2-d1<=0),
+              pass:m2-m1+1<howmany || (m2-m1+1==howmany && d2-d1<=0),
               msg:'日期跨度不得超过'+howmany+'个月!'
             };
           case 'y':
             return {
-              pass:y2-y1<howmany || (y2-y1==howmany && (m2-m1<0 || (m2-m1==0 && d2-d1<=0))),
+              pass:m2-m1<howmany*12 || (m2-m1==howmany*12 && d2-d1<=0),
               msg:'日期跨度不得超过'+howmany+'年!'
             };
         }
