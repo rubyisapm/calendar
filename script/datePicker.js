@@ -190,7 +190,7 @@ Calendar_datePicker.prototype = {
         callback.call(_this);
       }
 
-      if(!_this.ops.double && typeof _this.ops.sure == 'undefined'){
+      if(!_this.ops.double && typeof _this.ops.sure == 'function'){
         _this.ops.sure();
       }
 
@@ -1086,7 +1086,7 @@ $.fn.extend({
               $input.endCalendar.setDate(endDate);
               $input.val(beginDate + '-' + endDate);
               shell.hide();
-              if(typeof $input.ops.sure == 'undefined'){
+              if(typeof $input.ops.sure == 'function'){
                 $input.ops.sure();
               }
             }else{
