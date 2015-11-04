@@ -586,7 +586,7 @@ Calendar_datePicker.prototype = {
           var lastDateObj=this.analysisDate(lastDate);
           for(var i=firstDateObj.date;i<=lastDateObj.date;i++){
             var td=$calendar.find('td[date="'+firstDateObj.year+'/'+firstDateObj.month+'/'+i+'"]');
-            td.addClass(color);
+            td.removeClass('disabled').addClass(color);
           }
         }
         this.lightBlueDate(firstDate);
@@ -632,8 +632,8 @@ Calendar_datePicker.prototype = {
             if(thisView==thisDateYM){
               this.lightYellowDate(thisDate);
               lastTD=$calendar.find('td[date="'+thisDate+'"]');
-              lastTD.prevAll().addClass(color);
-              lastTD.parent().prevAll().find('td').addClass(color);
+              lastTD.prevAll().removeClass('disabled').addClass(color);
+              lastTD.parent().prevAll().find('td').removeClass('disabled').addClass(color);
             }
           }
         }
