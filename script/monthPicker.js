@@ -554,12 +554,10 @@ $.fn.extend({
         }
       },
       initShell: function ($input) {
-        var pos = this.positionShell($input),
-          shell = '';
+        var shell = '';
         if ($input.ops.double) {
           shell = $('<div ' +
-          'class="monthPicker_shell monthPicker_shell_double" ' +
-          'style="top:' + pos.top + ';left:' + pos.left + '">' +
+          'class="monthPicker_shell monthPicker_shell_double">' +
           '<div class="buttons">' +
           '<span class="clear">清 空</span>' +
           '<span class="sure">确 定</span>' +
@@ -568,8 +566,7 @@ $.fn.extend({
           '</div>');
         } else {
           shell = $('<div ' +
-          'class="monthPicker_shell" ' +
-          'style="top:' + pos.top + ';left:' + pos.left + '">' +
+          'class="monthPicker_shell">'+
           '</div>')
         }
         $('body').append(shell);
@@ -579,10 +576,10 @@ $.fn.extend({
         var x = $input.offset().left,
           y = $input.offset().top,
           h = parseInt($input.outerHeight());
-        return {
-          top: y + h + 'px',
-          left: x + 'px'
-        }
+        $input.shell.css({
+          top:y + h + 'px',
+          left:x + 'px'
+        })
       },
       initCalendar: function ($input) {
         var ops = $input.ops;
@@ -630,7 +627,9 @@ $.fn.extend({
         }
       },
       bindEvt_input: function ($input) {
+        var _this=this;
         $input.on('click', function (e) {
+          _this.positionShell();
           var beginCalendar = $input.beginCalendar,
             endCalendar = $input.endCalendar,
             shell = $input.shell,
