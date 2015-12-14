@@ -141,7 +141,7 @@ Calendar_monthPicker.prototype = {
       }
 
       if(!_this.ops.double && typeof _this.ops.sure == 'function'){
-        _this.ops.sure();
+        _this.ops.sure(_this.getDate());
       }
 
 
@@ -342,6 +342,7 @@ Calendar_monthPicker.prototype = {
         $('.yellowDate').removeClass('yellowDate');
       }
       $('.between').removeClass('between');
+      $('.disabled').removeClass('disabled');
       _this.setDate('');
       var callback = _this.ops.callback;
       if (typeof callback == 'function') {
@@ -489,9 +490,9 @@ Calendar_monthPicker.prototype = {
   hasPartnerDate: function () {
     //  判断该calendar是否有partner且partner的date不为空
     if(this.ops.double){
-      return hasPartnerDate=this.partner!=null && (this.partner.getTempDate() || this.partner.getDate())!='';
+      return this.partner!=null && (this.partner.getTempDate() || this.partner.getDate())!='';
     }else{
-      return hasPartnerDate=this.partner != null && this.partner.getDate() != '';
+      return this.partner != null && this.partner.getDate() != '';
     }
   },
   analysisDate: function (date) {
@@ -566,7 +567,7 @@ $.fn.extend({
           '</div>');
         } else {
           shell = $('<div ' +
-          'class="monthPicker_shell">'+
+          'class="monthPicker_shell">' +
           '</div>')
         }
         $('body').append(shell);
@@ -577,8 +578,8 @@ $.fn.extend({
           y = $input.offset().top,
           h = parseInt($input.outerHeight());
         $input.shell.css({
-          top:y + h + 'px',
-          left:x + 'px'
+          top: y + h + 'px',
+          left: x + 'px'
         })
       },
       initCalendar: function ($input) {
@@ -627,9 +628,9 @@ $.fn.extend({
         }
       },
       bindEvt_input: function ($input) {
-        var _this=this;
+        var _this = this;
         $input.on('click', function (e) {
-          _this.positionShell();
+          _this.positionShell($input);
           var beginCalendar = $input.beginCalendar,
             endCalendar = $input.endCalendar,
             shell = $input.shell,
@@ -691,7 +692,9 @@ $.fn.extend({
         shell.delegate('.clear', 'click', function (e) {
           e.stopPropagation();
           beginCalendar.setDate('');
+          beginCalendar.setTempDate('');
           endCalendar.setDate('');
+          endCalendar.setTempDate('');
           $('.between').removeClass('between');
           $('.blueDate').removeClass('blueDate');
           $('.yellowDate').removeClass('yellowDate');
@@ -726,8 +729,8 @@ $.fn.extend({
               $input.endCalendar.setDate(endDate);
               $input.val(beginDate + '-' + endDate);
               shell.hide();
-              if(typeof $input.ops.sure=='function'){
-                $input.ops.sure();
+              if (typeof $input.ops.sure == 'function') {
+                $input.ops.sure(beginDate + '-' + endDate);
               }
 
             } else {
@@ -756,7 +759,7 @@ $.fn.extend({
           endDate = end.split('/'),
           endYear = endDate[0],
           endMonth = endDate[1],
-          duringMonths = (endYear - beginYear) * 12 + 1*(endMonth - beginMonth),
+          duringMonths = (endYear - beginYear) * 12 + 1 * (endMonth - beginMonth),
           limitCopy = limit;
         switch (limit.substr(-1, 1)) {
           case 'y':
@@ -794,7 +797,7 @@ $.fn.extend({
       beginDate: '',//double中的开始日期
       endDate: '',//double中的结束日期
       verify: false,
-      sure:''
+      sure: ''
     };
     var $input = $(this);
     $input.ops = $.extend(true, {}, defaults, ops);
@@ -815,6 +818,7 @@ $.fn.extend({
       helper.bindEvt_double_sure($input);
       helper.bindEvt_double_close($input);
     }
+
     return $input;
   }
 })

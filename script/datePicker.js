@@ -152,6 +152,7 @@ Calendar_datePicker.prototype = {
         $('.yellowDate').removeClass('yellowDate');
       }
       $('.between').removeClass('between');
+      $('.disabled').removeClass('disabled');
       //_this.date='';
       _this.setDate('');
       var callback=_this.ops.callback;
@@ -191,7 +192,7 @@ Calendar_datePicker.prototype = {
       }
 
       if(!_this.ops.double && typeof _this.ops.sure == 'function'){
-        _this.ops.sure();
+        _this.ops.sure(_this.getDate());
       }
 
     })
@@ -1052,10 +1053,13 @@ $.fn.extend({
         shell.delegate('.clear','click',function(e){
           e.stopPropagation();
           beginCalendar.setDate('');
+          beginCalendar.setTempDate('');
           endCalendar.setDate('');
+          endCalendar.setTempDate('');
           $('.between').removeClass('between');
           $('.blueDate').removeClass('blueDate');
           $('.yellowDate').removeClass('yellowDate');
+          $('.disabled').removeClass('disabled');
           $input.val('');
         })
       },
@@ -1087,7 +1091,7 @@ $.fn.extend({
               $input.val(beginDate + '-' + endDate);
               shell.hide();
               if(typeof $input.ops.sure == 'function'){
-                $input.ops.sure();
+                $input.ops.sure(beginDate + '-' + endDate);
               }
             }else{
               alert(_this.verify(beginDate,endDate,limited).msg)
@@ -1161,12 +1165,14 @@ $.fn.extend({
     helper.initShell($input);
     helper.initCalendar($input);
     helper.bindEvt_input($input);
+
     if($input.ops.double){
       helper.bindEvt_double_simple($input);
       helper.bindEvt_double_clear($input);
       helper.bindEvt_double_sure($input);
       helper.bindEvt_double_close($input);
     }
+
     return $input;
   }
 })
