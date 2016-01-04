@@ -153,7 +153,6 @@ Calendar_datePicker.prototype = {
       }
       $('.between').removeClass('between');
       $('.disabled').removeClass('disabled');
-      //_this.date='';
       _this.setDate('');
       var callback=_this.ops.callback;
       if(typeof callback=='function'){
@@ -175,7 +174,7 @@ Calendar_datePicker.prototype = {
       $calendar_body = $calendar.find('tbody'),
       $calendar_td = $calendar.find('td');
 
-    $calendar_body.delegate('td[class!="disabled"]', 'click', function (e) {
+    $calendar_body.delegate('td[class!="disabled"][class!="space"]', 'click', function (e) {
       e.stopPropagation();
       if(_this.ops.double){
         _this.setTempDate($(this).attr('date'));
@@ -587,7 +586,7 @@ Calendar_datePicker.prototype = {
           var lastDateObj=this.analysisDate(lastDate);
           for(var i=firstDateObj.date;i<=lastDateObj.date;i++){
             var td=$calendar.find('td[date="'+firstDateObj.year+'/'+firstDateObj.month+'/'+i+'"]');
-            td.removeClass('disabled').addClass(color);
+            td.removeClass('disabled blueDate yellowDate').addClass(color);
           }
         }
         this.lightBlueDate(firstDate);
@@ -598,21 +597,21 @@ Calendar_datePicker.prototype = {
 
           if(this.largerThanByYM(partnerDateYM,thisView) && this.largerThanByYM(thisView,thisDateYM)){
             //结
-            $calendar.find('tbody').find('td').removeClass('disabled').addClass(color);
+            $calendar.find('tbody').find('td').removeClass('disabled blueDate yellowDate').addClass(color);
           }else if(this.largerThanByYM(thisView,partnerDateYM)){
             $calendar.find('td').addClass('disabled');
           }else{
             if(thisView==thisDateYM){
               this.lightBlueDate(thisDate);
               firstTD=$calendar.find('td[date="'+thisDate+'"]');
-              firstTD.nextAll().removeClass('disabled').addClass(color);
-              firstTD.parent().nextAll().find('td').removeClass('disabled').addClass(color);
+              firstTD.nextAll().removeClass('disabled blueDate yellowDate').addClass(color);
+              firstTD.parent().nextAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
             }
             if(thisView==partnerDateYM){
               this.lightYellowDate(partnerDate);
               lastTD=$calendar.find('td[date="'+partnerDate+'"]');
-              lastTD.prevAll().removeClass('disabled').addClass(color);
-              lastTD.parent().prevAll().find('td').removeClass('disabled').addClass(color);
+              lastTD.prevAll().removeClass('disabled blueDate yellowDate').addClass(color);
+              lastTD.parent().prevAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
               this.disabledDates(partnerDate,false);
             }
 
@@ -621,20 +620,20 @@ Calendar_datePicker.prototype = {
           if(this.largerThanByYM(partnerDate,thisView)){
             $calendar.find('tbody').find('td').addClass('disabled');
           }else if(this.largerThanByYM(thisView,partnerDateYM) && this.largerThanByYM(thisDateYM,thisView)){
-            $calendar.find('tbody').find('td').removeClass('disabled').addClass(color);
+            $calendar.find('tbody').find('td').removeClass('disabled blueDate yellowDate').addClass(color);
           }else{
             if(thisView==partnerDateYM){
               this.lightBlueDate(partnerDate);
               firstTD=$calendar.find('td[date="'+partnerDate+'"]');
-              firstTD.nextAll().removeClass('disabled').addClass(color);
-              firstTD.parent().nextAll().find('td').removeClass('disabled').addClass(color);
+              firstTD.nextAll().removeClass('disabled blueDate yellowDate').addClass(color);
+              firstTD.parent().nextAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
               this.disabledDates(partnerDate,true);
             }
             if(thisView==thisDateYM){
               this.lightYellowDate(thisDate);
               lastTD=$calendar.find('td[date="'+thisDate+'"]');
-              lastTD.prevAll().removeClass('disabled').addClass(color);
-              lastTD.parent().prevAll().find('td').removeClass('disabled').addClass(color);
+              lastTD.prevAll().removeClass('disabled blueDate yellowDate').addClass(color);
+              lastTD.parent().prevAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
             }
           }
         }
@@ -934,12 +933,23 @@ $.fn.extend({
       positionShell: function ($input) {
         var x = $input.offset().left,
           y = $input.offset().top,
-          h = parseInt($input.outerHeight());
-
-        $input.shell.css({
-          left:x + 'px',
-          top:y + h + 'px'
-        })
+          h = parseInt($input.outerHeight()),
+          bw=parseInt($(window).outerWidth()),
+          bh=parseInt($(window).outerHeight()),
+          sw=parseInt($input.shell.outerWidth())+5,
+          sh=parseInt($input.shell.outerHeight())+5,
+          pos={};
+        if(bw-x>=sw){
+          pos.left=x+'px';
+        }else{
+          pos.right='5px';
+        }
+        if(bh-y>=sh){
+          pos.top=y+h+'px';
+        }else if(y>sh){
+          pos.bottom=bh-y+'px';
+        }
+        $input.shell.css(pos);
       },
       initCalendar:function($input){
         var ops=$input.ops;
@@ -992,8 +1002,7 @@ $.fn.extend({
         var _this=this;
         $input.on('click',function(e){
           //e.stopPropagation();
-          //此处定位shell，防止初始化时input位置不准确引起的input和calendar错位
-          _this.positionShell($input);
+          //点击input后进行shell定位，防止初始化时input位置不准确引起的input和calendar错位
           var beginCalendar=$input.beginCalendar,
             endCalendar=$input.endCalendar,
             shell = $input.shell,
@@ -1011,6 +1020,7 @@ $.fn.extend({
             $buttons.before(endCalendar.calendarBody);
             beginCalendar.show();
             endCalendar.show();
+            _this.positionShell($input);
             shell.show();
 
             var cb=function(e){
