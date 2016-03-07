@@ -193,8 +193,7 @@ Calendar_monthPicker.prototype = {
     $calendarBody.find('tbody').html(this.calendarGrid(thisView));
   },
   decorate_during_slide: function () {
-    var $calendarBody = this.calendarBody,
-      thisView = this.getView(),
+    var thisView = this.getView(),
       begin = this.begin,
       thisDate;
     if(this.ops.double){
@@ -296,8 +295,10 @@ Calendar_monthPicker.prototype = {
         } else if (this.getView() == partnerYear) {
           if (begin) {
             this.lightYellowDate(partnerDate);
+            this.disabledDates(partnerDate,false);
           } else {
             this.lightBlueDate(partnerDate);
+            this.disabledDates(partnerDate,true);
           }
         }
       }
@@ -308,25 +309,24 @@ Calendar_monthPicker.prototype = {
     if (partner != null) {
       var _this = this,
         $calendarBody = _this.calendarBody;
-      $calendarBody.delegate('td',{
-        'mouseenter':function(){
-          if (!$(this).hasClass('disabled')){
-            var partnerDate;
-            if(_this.ops.double){
-              partnerDate=partner.getTempDate() || partner.getDate();
-            }else{
-              partnerDate = partner.getDate();
-            }
-            if (partnerDate != '') {
-              var thisDate = $(this).attr('data-month');
-              _this.lightMiddleDates(thisDate, _this.begin, partnerDate, 'during');
-            }
+      $calendarBody.find('td').on('mouseenter',function(e){
+        if (!$(this).hasClass('disabled')){
+          var partnerDate;
+          if(_this.ops.double){
+            partnerDate=partner.getTempDate() || partner.getDate();
+          }else{
+            partnerDate = partner.getDate();
           }
-
-        },
-        'mouseout':function(){
-          $calendarBody.find('.during').removeClass('during');
+          if (partnerDate != '') {
+            var thisDate = $(this).attr('data-month');
+            _this.lightMiddleDates(thisDate, _this.begin, partnerDate, 'during');
+          }
         }
+
+      })
+
+      $calendarBody.find('td').on('mouseleave',function(e){
+        $calendarBody.find('.during').removeClass('during');
       })
     }
 
@@ -344,9 +344,13 @@ Calendar_monthPicker.prototype = {
       $('.between').removeClass('between');
       $('.disabled').removeClass('disabled');
       _this.setDate('');
-      var callback = _this.ops.callback;
+      var callback = _this.ops.callback,
+        clearCB=_this.ops.clearCB;
       if (typeof callback == 'function') {
         callback.call(_this);
+      }
+      if(typeof clearCB=='function'){
+        clearCB();
       }
     })
   },
@@ -409,9 +413,13 @@ Calendar_monthPicker.prototype = {
       if (before) {
         td.prevAll().removeClass().addClass('disabled');
         td.parent().prevAll().find('td').removeClass().addClass('disabled');
+        td.nextAll().removeClass('disabled');
+        td.parent().nextAll().find('td').removeClass('disabled');
       } else {
         td.nextAll().removeClass().addClass('disabled');
         td.parent().nextAll().find('td').removeClass().addClass('disabled');
+        td.prevAll().removeClass('disabled');
+        td.parent().prevAll().find('td').removeClass('disabled');
       }
     }
 
@@ -538,7 +546,8 @@ $.fn.extend({
      * date:具体日期如'2015/10/10'或具体阶段'2015/10/10-2016/1/1'，用于指定初始化日期
      * switchYM: true or false 是否可以进行年月的select选择
      * partner: 为一个input(jquery对象)
-     * clear : true or false
+     * clear : true or false // 但日历中的清空按钮
+     * clear:function //双日历中的清空日期回调,
      * beginDate:'',//double中的开始日期
      * endDate:''//double中的结束日期
      * verify:false or number+'y'/'m'  //指定时间跨度限制
@@ -574,20 +583,33 @@ $.fn.extend({
         $input.shell = shell;
       },
       positionShell: function ($input) {
+
         var x = $input.offset().left,
           y = $input.offset().top,
-          h = parseInt($input.outerHeight());
-        $input.shell.css({
-          top: y + h + 'px',
-          left: x + 'px'
-        })
+          h = parseInt($input.outerHeight()),
+          bw=parseInt($(window).outerWidth()),
+          bh=parseInt($(window).outerHeight()),
+          sw=parseInt($input.shell.outerWidth())+5,
+          sh=parseInt($input.shell.outerHeight())+5,
+          pos={};
+        if(bw-x>=sw){
+          pos.left=x+'px';
+        }else{
+          pos.right='5px';
+        }
+        if(bh-y<sh && y>sh){
+          pos.bottom=bh-y+'px';
+        }else{
+          pos.top=y+h+'px';
+        }
+        $input.shell.css(pos);
       },
       initCalendar: function ($input) {
         var ops = $input.ops;
         if ($input.ops.double) {
           //双日历的处理
-          var ops_begin = $.extend({}, ops),
-            ops_end = $.extend({}, ops);
+          var ops_begin = $.extend({}, ops,{clear:false}),
+            ops_end = $.extend({}, ops,{clear:false});
           ops_begin.date = ops_begin.beginDate;
           ops_begin.close = false;
           delete ops_begin.beginDate;
@@ -630,7 +652,7 @@ $.fn.extend({
       bindEvt_input: function ($input) {
         var _this = this;
         $input.on('click', function (e) {
-          _this.positionShell($input);
+
           var beginCalendar = $input.beginCalendar,
             endCalendar = $input.endCalendar,
             shell = $input.shell,
@@ -648,6 +670,8 @@ $.fn.extend({
             $buttons.before(endCalendar.calendarBody);
             beginCalendar.show();
             endCalendar.show();
+            //避免不可见元素影响位置尺寸误判
+            _this.positionShell($input);
             shell.show();
 
             var cb = function (e) {
@@ -671,7 +695,7 @@ $.fn.extend({
               calendar.update();
             }
             shell.html(calendar.calendarBody);
-
+            _this.positionShell($input);
             calendar.show();
             var cb = function (e) {
               if (e.target != $input[0]) {
@@ -700,6 +724,9 @@ $.fn.extend({
           $('.yellowDate').removeClass('yellowDate');
           $('.disabled').removeClass('disabled');
           $input.val('');
+          if(typeof $input.ops.clear == 'function'){
+            $input.ops.clear();
+          }
         })
       },
       bindEvt_double_simple: function ($input) {
@@ -736,8 +763,16 @@ $.fn.extend({
             } else {
               alert(_this.verify(beginDate, endDate, limited).msg)
             }
-          } else {
+          } else if($input.ops.necessary){
             alert('请选择相应的月份!');
+          }else if(beginDate=='' && endDate!=''){
+            alert('请选择起始月份!');
+          }else if(beginDate!='' && endDate==''){
+            alert('请选择结束月份!');
+          }else{
+            shell.hide();
+            $input.beginCalendar.hide();
+            $input.endCalendar.hide();
           }
         })
       },

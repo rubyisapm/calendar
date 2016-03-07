@@ -1,10 +1,12 @@
-body,div,h2,ul,li{
-  padding:0;
-  margin:0;
+body, div, h2, ul, li {
+  padding: 0;
+  margin: 0;
 }
-li{
+
+li {
   list-style-position: outside;
 }
+
 @mixin button {
   background-image: url(../image/calender-icon.png);
   background-repeat: no-repeat;
@@ -14,7 +16,7 @@ li{
   position: absolute;
 }
 
-@mixin clear{
+@mixin clear {
   height: 24px;
   text-align: center;
   line-height: 24px;
@@ -26,23 +28,25 @@ li{
   cursor: pointer;
   display: inline-block;
 }
-@mixin arrow{
-  display:inline-block;
+
+@mixin arrow {
+  display: inline-block;
   width: 0px;
   height: 0px;
-  border-width:15px 7px;
-  border-style:solid;
-  border-color:#5792DC transparent transparent transparent;
-  cursor:pointer;
+  border-width: 15px 7px;
+  border-style: solid;
+  border-color: #5792DC transparent transparent transparent;
+  cursor: pointer;
 }
 
-@mixin rotate($deg){
-  -moz-transform:rotate($deg);
-  -webkit-transform:rotate($deg);
-  -ms-transform:rotate($deg);
-  transform:rotate($deg);
+@mixin rotate($deg) {
+  -moz-transform: rotate($deg);
+  -webkit-transform: rotate($deg);
+  -ms-transform: rotate($deg);
+  transform: rotate($deg);
 
 }
+
 .monthPicker_shell {
   position: absolute;
   .calendar_box {
@@ -54,30 +58,29 @@ li{
     text-align: center;
     position: relative;
     display: none;
-    h2{
-      font-size:14px;
-      position:relative;
-      height:30px;
+    h2 {
+      font-size: 14px;
+      position: relative;
+      height: 30px;
       line-height: 30px;
-      .arrow_prev{
+      .arrow_prev {
         @include arrow;
         @include rotate(90deg);
-        position:absolute;
-        top:0;
-        left:0;
+        position: absolute;
+        top: 0;
+        left: 0;
       }
-      .arrow_next{
+      .arrow_next {
         @include arrow;
         @include rotate(-90deg);
-        position:absolute;
-        right:0;
-        top:0;
+        position: absolute;
+        right: 0;
+        top: 0;
       }
 
     }
 
-
-    .date_box{
+    .date_box {
       .date_box_title {
         font: bold 12px/2 Arial;
         text-align: center;
@@ -86,32 +89,30 @@ li{
         margin: 0;
       }
 
-      .date_table {
-        border-collapse: collapse;
-        td {
+    .date_table {
+      border-collapse: collapse;
+      td {
+        text-align: center;
+        color: #5F5F5F;
+        width: 54px;
+        height: 32px;
+        padding: 0;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        a {
+          display: block;
+          line-height: 32px;
           text-align: center;
-          color: #5F5F5F;
-          width: 54px;
-          height: 32px;
-          padding: 0;
-          border: 1px solid #ccc;
-          font-size:14px;
-          a {
-            display: block;
-            line-height: 32px;
-            text-align: center;
-            cursor: pointer;
-          }
-
+          cursor: pointer;
         }
-
       }
+    }
     }
   }
   .calendar_box_begin td:not(.disabled) a:hover, td.blueDate a {
     background-color: #5792dc;
   }
-  .calendar_box_end td:not(.disabled) a:hover, td.yellowDate a{
+  .calendar_box_end td:not(.disabled) a:hover, td.yellowDate a {
     background-color: #e2ad44;
   }
   .between a {
@@ -127,7 +128,7 @@ li{
     background-color: #bbddf4;
   }
 
-  .clear{
+  .clear {
     @include clear;
     margin: 10px auto 0;
   }
@@ -160,7 +161,7 @@ li{
     span:nth-child(1) {
       margin-right: 30px;
     }
-    span:hover{
+    span:hover {
       background-color: #3D82BA;
       color: #fff;
     }
@@ -170,9 +171,9 @@ li{
       color: #fff;
 
     }
-    .clear{
+    .clear {
       @include clear;
-      &:hover{
+      &:hover {
         background-color: #3D82BA;
         color: #fff;
       }

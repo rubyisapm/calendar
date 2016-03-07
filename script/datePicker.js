@@ -9,7 +9,9 @@ function Calendar_datePicker(ops) {
    *   date:'' or 具体日期如'2011/10/10',
    *   clear: true or false 是否包含清空按钮,
    *   close: true or false 是否包含关闭按钮,
-   *   callback: fn date属性改变后的回调函数（单双日历的操作完全不同）
+   *   callback: fn date属性改变后的回调函数（单双日历的操作完全不同）用于内部使用
+   *   sure:function 日历改变日期时回调
+   *
    * }
    *
    * */
@@ -158,6 +160,9 @@ Calendar_datePicker.prototype = {
       if(typeof callback=='function'){
         callback.call(_this);
       }
+      if(typeof _this.ops.sure=='function'){
+        _this.ops.sure('');
+      }
     })
   },
   bindEvt_closeDate: function () {
@@ -180,8 +185,9 @@ Calendar_datePicker.prototype = {
         _this.setTempDate($(this).attr('date'));
       }else{
         _this.setDate($(this).attr('date'));
-
-
+        if(typeof _this.ops.sure=='function'){
+          _this.ops.sure($(this).attr('date'));
+        }
       }
       _this.decorate();
       _this.setView($(this).attr('date'));
@@ -685,9 +691,15 @@ Calendar_datePicker.prototype = {
       if (before) {
         $calendar_date.prevAll().addClass('disabled');
         $calendar_date.parent().prevAll().find('td').addClass('disabled');
+        // 将可用的日期重新去disabled化
+        $calendar_date.nextAll().removeClass('disabled');
+        $calendar_date.parent().nextAll().find('td').removeClass('disabled');
       } else {
         $calendar_date.nextAll().addClass('disabled');
         $calendar_date.parent().nextAll().find('td').addClass('disabled');
+        // 将可用的日期重新去disabled化
+        $calendar_date.prevAll().removeClass('disabled');
+        $calendar_date.parent().prevAll().find('td').removeClass('disabled');
       }
     } else {
       var currentDate = this.getView(),
@@ -896,10 +908,11 @@ $.fn.extend({
     * date:具体日期如'2015/10/10'或具体阶段'2015/10/10-2016/1/1'，用于指定初始化日期
     * switchYM: true or false 是否可以进行年月的select选择
     * partner: 为一个input(jquery对象)
-    * clear : true or false
+    * clear : true or false // 单日历
+    * clear : function //双日历回调
     * beginDate:'',//double中的开始日期
     * endDate:''//double中的结束日期
-    * verify:false or number+'y'/'m'/'d'  //指定时间跨度限制
+    * limited:false or number+'y'/'m'/'d'  //指定时间跨度限制
     * */
 
     var helper={
@@ -913,7 +926,8 @@ $.fn.extend({
         }
       },
       initShell:function($input){
-        var shell='';
+        var shell='',
+          close=$input.ops.necessary ? '' : '<span class="buttonIcon btn_close">关闭</span>';
         if($input.ops.double){
           shell=$('<div ' +
           'class="datePicker_shell datePicker_shell_double">' +
@@ -921,7 +935,7 @@ $.fn.extend({
           '<span class="clear">清 空</span>' +
           '<span class="sure">确 定</span>' +
           '</div>' +
-          '<span class="buttonIcon btn_close">关闭</span>' +
+           close+
           '</div>');
         }else{
           shell=$('<div ' +
@@ -944,10 +958,10 @@ $.fn.extend({
         }else{
           pos.right='5px';
         }
-        if(bh-y>=sh){
-          pos.top=y+h+'px';
-        }else if(y>sh){
+        if(bh-y<sh && y>sh){
           pos.bottom=bh-y+'px';
+        }else{
+          pos.top=y+h+'px';
         }
         $input.shell.css(pos);
       },
@@ -956,8 +970,8 @@ $.fn.extend({
         if($input.ops.double){
           //双日历的处理
 
-          var ops_begin= $.extend({},ops),
-            ops_end= $.extend({},ops);
+          var ops_begin= $.extend({},ops,{clear:false}),
+            ops_end= $.extend({},ops,{clear:false});
           ops_begin.date=ops_begin.beginDate;
           ops_begin.close=false;
           delete ops_begin.beginDate;
@@ -1020,6 +1034,7 @@ $.fn.extend({
             $buttons.before(endCalendar.calendarBody);
             beginCalendar.show();
             endCalendar.show();
+            //避免不可见元素影响位置尺寸误判
             _this.positionShell($input);
             shell.show();
 
@@ -1044,6 +1059,7 @@ $.fn.extend({
             }
             shell.html(calendar.calendarBody);
             calendar.show();
+            _this.positionShell($input);
             var cb=function(e){
               if(e.target!=$input[0]){
                 calendar.hide();
@@ -1071,6 +1087,9 @@ $.fn.extend({
           $('.yellowDate').removeClass('yellowDate');
           $('.disabled').removeClass('disabled');
           $input.val('');
+          if(typeof $input.ops.clear == 'function'){
+            $input.ops.clear();
+          }
         })
       },
       bindEvt_double_simple:function($input){
@@ -1106,8 +1125,16 @@ $.fn.extend({
             }else{
               alert(_this.verify(beginDate,endDate,limited).msg)
             }
-          }else{
+          }else if(beginDate=='' && endDate!=''){
+            alert('请选择起始日期!');
+          }else if(beginDate!='' && endDate==''){
+            alert('请选择结束日期!');
+          }else if($input.ops.necessary){
             alert('请选择相应的日期!');
+          }else{
+            shell.hide();
+            $input.beginCalendar.hide();
+            $input.endCalendar.hide();
           }
         })
       },
@@ -1135,7 +1162,7 @@ $.fn.extend({
         switch(unit){
           case 'd':
             return {
-              pass:new Date(end)-new Date(begin)<=howmany*86400000,
+              pass:new Date(end)-new Date(begin)<=(howmany-1)*86400000,
               msg:'日期跨度不得超过'+howmany+'天!'
             };
           case 'm':
@@ -1149,6 +1176,9 @@ $.fn.extend({
               msg:'日期跨度不得超过'+howmany+'年!'
             };
         }
+        return {
+          pass:true
+        }
       }
     };
 
@@ -1160,7 +1190,11 @@ $.fn.extend({
       date: '',//单日历中的日期
       beginDate:'',//double中的开始日期
       endDate:'',//double中的结束日期
-      verify:false
+      verify:false,//double 是否验证
+      sure:'',//确定后的回调
+      clearCB:'',//double 清空后的回调
+      necessary:false, //double 日期是否必填
+      callback:''//但日历改变日期后的回调
     };
     var $input=$(this);
     $input.ops = $.extend(true, {}, defaults, ops);
