@@ -96,7 +96,7 @@ Calendar_datePicker.prototype = {
     }else if(this.getView()==''){
       var now = new Date(),
         year = now.getFullYear(),
-        month = 1 * (now.getMonth()) + 1;
+        month = now.getMonth() + 1;
       this.setView(year + '/' + month);
     }
     if(this.ops.double){
@@ -194,10 +194,6 @@ Calendar_datePicker.prototype = {
       var callback=_this.ops.callback;
       if(typeof callback=='function'){
         callback.call(_this);
-      }
-
-      if(!_this.ops.double && typeof _this.ops.sure == 'function'){
-        _this.ops.sure(_this.getDate());
       }
 
     })
@@ -1186,15 +1182,13 @@ $.fn.extend({
       partner: null,//仅用作传递给calendar对象
       switchYM: false,//仅用作传递给calendar对象
       double: false,
-      clear:false,//仅用作传递给calendar对象
+      clear:false,//单日历 仅用作传递给calendar对象  //double 清空后的回调
       date: '',//单日历中的日期
       beginDate:'',//double中的开始日期
       endDate:'',//double中的结束日期
       verify:false,//double 是否验证
       sure:'',//确定后的回调
-      clearCB:'',//double 清空后的回调
-      necessary:false, //double 日期是否必填
-      callback:''//但日历改变日期后的回调
+      necessary:false //double 日期是否必填
     };
     var $input=$(this);
     $input.ops = $.extend(true, {}, defaults, ops);

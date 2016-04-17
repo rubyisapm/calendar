@@ -344,13 +344,9 @@ Calendar_monthPicker.prototype = {
       $('.between').removeClass('between');
       $('.disabled').removeClass('disabled');
       _this.setDate('');
-      var callback = _this.ops.callback,
-        clearCB=_this.ops.clearCB;
-      if (typeof callback == 'function') {
+      var callback = _this.ops.callback;
+      if (typeof callback == 'function'){
         callback.call(_this);
-      }
-      if(typeof clearCB=='function'){
-        clearCB();
       }
     })
   },
@@ -827,10 +823,11 @@ $.fn.extend({
     var defaults = {
       partner: null,//仅用作传递给calendar对象
       double: false,
-      clear: false,//仅用作传递给calendar对象
+      clear: false,//仅用作传递给calendar对象 // double 清除日期后回调
       date: '',//单日历中的日期
       beginDate: '',//double中的开始日期
       endDate: '',//double中的结束日期
+      necessary:false,// double 日期是否必填
       verify: false,
       sure: ''
     };
