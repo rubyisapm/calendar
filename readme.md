@@ -70,6 +70,7 @@ sure | function对象 | function | 确定日期选择后的回调函数，其参
 ----- | ---- | ---- | ----
 clear | boolean | true/false | 是否含有清空按钮
 date | string | 2015/10/10 | 单日历中的初始日期
+defaultDate | string | 2015/10/10 | 单日历中日期点击input后日期为空时的渲染依据
 
 #### 日历参数解析(双日历)
 
@@ -80,6 +81,11 @@ endDate | string | 2015/10/10 | 双日历中的初始结束日期
 clear | function对象 | function | 清除日历后的回调
 verify | boolean | true / false | 是否做验证
 limited | string | number+'y/m/d' | 验证规则
+defaultBeginDate | string | 2015/10/10 | 双日历中日期点击input后日期为空时的渲染依据(起始日期)
+defaultEndDate | string | 2015/10/10 | 双日历中日期点击input后日期为空时的渲染依据(结束日期)
+
+注：default系列的日期并不会直接呈现在input框内，而是为了用户选择日期时提供参考，如果用户认可该日期，可直接确认，从而减少操作次数。
+
 
 * 单月历
 
@@ -134,6 +140,8 @@ sure | function对象 | function | 确定日期选择后的回调函数
 ----- | ---- | ---- | ----
 clear | boolean | true/false | 是否含有清空按钮（针对单月历）
 date | string | 2015/10/10 | 单月历中的初始日期
+defaultDate | string | 2015/10/10 | 单日历中日期点击input后日期为空时的渲染依据
+
 
 * 月历参数解析(双月历)
 
@@ -145,7 +153,11 @@ clear | function对象 | function | 清空日期选择后的回调函数
 necessary | boolean | true / false | 是否必填
 verify | boolean | true / false | 是否做验证
 limited | string | number+'y/m' | 验证规则
+defaultBeginDate | string | 2015/10/10 | 双日历中日期点击input后日期为空时的渲染依据(起始日期)
+defaultEndDate | string | 2015/10/10 | 双日历中日期点击input后日期为空时的渲染依据(结束日期)
 
+
+注：default系列的日期并不会直接呈现在input框内，而是为了用户选择日期时提供参考，如果用户认可该日期，可直接确认，从而减少操作次数。
 
 
 

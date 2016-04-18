@@ -121,7 +121,7 @@ Calendar_datePicker.prototype = {
     if (date != '') {
       this.setView(date.replace(this.REG.date, '$1/$2'));
     }else if (this.partner != null) {
-      var date_partner = this.dateFormat(this.partner.getDate());
+      var date_partner = this.dateFormat(this.partner.getDate() || this.partner.ops.defaultDate);
       if (date_partner != '') {
         this.setView(date_partner.replace(this.REG.date, '$1/$2'));
         this.partner.setView(date_partner.replace(this.REG.date, '$1/$2'));
@@ -968,13 +968,12 @@ $.fn.extend({
 
           var ops_begin= $.extend({},ops,{clear:false}),
             ops_end= $.extend({},ops,{clear:false});
-          ops_begin.date=ops_begin.beginDate;
+          ops_begin.date=ops_begin.beginDate || ops_begin.defaultBeginDate;
           ops_begin.close=false;
           delete ops_begin.beginDate;
-          ops_end.date=ops_end.endDate;
+          ops_end.date=ops_end.endDate || ops_end.defaultEndDate;
           ops_end.close=false;
           delete ops_end.endDate;
-
           ops_begin.callback=function(){
             this.partner.decorate();
           }
@@ -996,6 +995,7 @@ $.fn.extend({
             this.hide();
             this.syncInput();
           }
+            ops.date=ops.date || ops.defaultDate;
           var calendar=new Calendar_datePicker(ops);
           calendar.input=$input;
           $input.calendar=calendar;
@@ -1022,6 +1022,12 @@ $.fn.extend({
               beginCalendar.init();
               endCalendar.init();
             }else{
+                if(beginCalendar.getDate()==''){
+                    beginCalendar.setDate($input.ops.defaultBeginDate);
+                }
+                if(endCalendar.getDate()==''){
+                    endCalendar.setDate($input.ops.defaultEndDate);
+                }
               beginCalendar.update();
               endCalendar.update();
               shell.find('.calendar_box').remove();
@@ -1051,6 +1057,9 @@ $.fn.extend({
             if(shell.html()==''){
               calendar.init();
             }else{
+                if(calendar.getDate()==''){
+                    calendar.setDate($input.ops.defaultDate);
+                }
               calendar.update();
             }
             shell.html(calendar.calendarBody);
@@ -1188,7 +1197,11 @@ $.fn.extend({
       endDate:'',//double中的结束日期
       verify:false,//double 是否验证
       sure:'',//确定后的回调
-      necessary:false //double 日期是否必填
+      necessary:false, //double 日期是否必填
+
+      defaultDate:'',// 单日历 当点击input时，如果日期为空，按该日期渲染
+      defaultBeginDate:'',// 双日历 当点击input时，如果日期为空，按该起始日期渲染
+      defaultEndDate:''// 双日历 当点击input时，如果日期为空，按该结束日期渲染
     };
     var $input=$(this);
     $input.ops = $.extend(true, {}, defaults, ops);

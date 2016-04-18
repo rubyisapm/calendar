@@ -81,10 +81,12 @@ Calendar_monthPicker.prototype = {
     //根据partner来更新其日历展现
 
     if (this.getDate() != '') {
-
       this.setView(this.analysisDate(this.getDate()).year);
-    } else if (this.partner!=null && this.partner.getDate()!='') {
-      this.setView(this.analysisDate(this.partner.getDate()).year);
+    } else if (this.partner!=null) {
+      var date_partner=this.partner.getDate();
+      if(date_partner!=''){
+        this.setView(this.analysisDate(date_partner).year);
+      }
     } else {
       this.setView(new Date().getFullYear());
     }
@@ -606,10 +608,10 @@ $.fn.extend({
           //双日历的处理
           var ops_begin = $.extend({}, ops,{clear:false}),
             ops_end = $.extend({}, ops,{clear:false});
-          ops_begin.date = ops_begin.beginDate;
+          ops_begin.date = ops_begin.beginDate || ops_begin.defaultBeginDate;
           ops_begin.close = false;
           delete ops_begin.beginDate;
-          ops_end.date = ops_end.endDate;
+          ops_end.date = ops_end.endDate || ops_begin.defaultEndDate;
           ops_end.close = false;
           delete ops_end.endDate;
 
@@ -633,6 +635,7 @@ $.fn.extend({
             this.hide();
             this.syncInput();
           }
+          ops.date=ops.date || ops.defaultDate;
           var calendar = new Calendar_monthPicker(ops);
           calendar.input = $input;
           $input.calendar = calendar;
@@ -658,6 +661,12 @@ $.fn.extend({
               beginCalendar.init();
               endCalendar.init();
             } else {
+              if(beginCalendar.getDate()==''){
+                beginCalendar.setDate($input.ops.defaultBeginDate);
+              }
+              if(endCalendar.getDate()==''){
+                endCalendar.setDate($input.ops.defaultEndDate);
+              }
               beginCalendar.update();
               endCalendar.update();
               shell.find('.calendar_box').remove();
@@ -688,6 +697,9 @@ $.fn.extend({
               calendar.init();
 
             } else {
+              if(calendar.getDate()==''){
+                calendar.setDate($input.ops.defaultDate);
+              }
               calendar.update();
             }
             shell.html(calendar.calendarBody);
@@ -829,7 +841,10 @@ $.fn.extend({
       endDate: '',//double中的结束日期
       necessary:false,// double 日期是否必填
       verify: false,
-      sure: ''
+      sure: '',
+      defaultDate:'',// 单日历 当点击input时，如果日期为空，按该日期渲染
+      defaultBeginDate:'',// 双日历 当点击input时，如果日期为空，按该起始日期渲染
+      defaultEndDate:''// 双日历 当点击input时，如果日期为空，按该结束日期渲染
     };
     var $input = $(this);
     $input.ops = $.extend(true, {}, defaults, ops);
