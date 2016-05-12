@@ -6,7 +6,8 @@ li {
   list-style-position: outside; }
 
 .monthPicker_shell {
-  position: absolute; }
+  position: absolute;
+  z-index: 9999; }
   .monthPicker_shell .calendar_box {
     border-width: 1px;
     border-style: solid;
