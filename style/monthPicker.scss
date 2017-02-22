@@ -49,6 +49,7 @@ li {
 
 .monthPicker_shell {
   position: absolute;
+  z-index:9999;
   .calendar_box {
     border-width: 1px;
     border-style: solid;

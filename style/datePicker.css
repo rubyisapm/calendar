@@ -1,6 +1,7 @@
 .datePicker_shell {
   position: absolute;
-  font-size: 12px; }
+  font-size: 12px;
+  z-index: 9999; }
   .datePicker_shell .calendar_input {
     border: 1px solid #E4E4E4; }
   .datePicker_shell .calendar_box {
