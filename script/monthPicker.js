@@ -124,7 +124,6 @@ Calendar_monthPicker.prototype = {
         _this.setTempDate($(this).attr('data-month'));
       }else{
         _this.setDate($(this).attr('data-month'));
-
       }
 
       if (_this.hasPartnerDate()) {
@@ -145,8 +144,6 @@ Calendar_monthPicker.prototype = {
       if(!_this.ops.double && typeof _this.ops.sure == 'function'){
         _this.ops.sure(_this.getDate());
       }
-
-
     })
   },
   bindEvt_slideMonth: function () {
@@ -200,15 +197,15 @@ Calendar_monthPicker.prototype = {
       thisDate;
     if(this.ops.double){
       thisDate=this.getTempDate() || this.getDate();
-
     }else{
       thisDate=this.getDate();
     }
-    var thisYear = thisDate == '' ? thisView : this.analysisDate(thisDate).year;
 
-    if (thisYear == thisView) {
+    if (thisDate == thisView) {
       this.decorate_current();
     } else {
+      var thisYear = thisDate == '' ? thisView : this.analysisDate(thisDate).year;
+
       if (this.hasPartnerDate()) {
         var partnerDate;
         if(this.ops.double){
@@ -592,13 +589,17 @@ $.fn.extend({
           pos={};
         if(bw-x>=sw){
           pos.left=x+'px';
+          pos.right='initial';
         }else{
+          pos.left='initial';
           pos.right='5px';
         }
         if(bh-y<sh && y>sh){
+          pos.top='initial';
           pos.bottom=bh-y+'px';
         }else{
           pos.top=y+h+'px';
+          pos.bottom='initial';
         }
         $input.shell.css(pos);
       },
@@ -683,6 +684,8 @@ $.fn.extend({
               if (e.target != $input[0]) {
                 beginCalendar.hide();
                 endCalendar.hide();
+                beginCalendar.setTempDate('');
+                endCalendar.setTempDate('');
                 shell.hide();
                 $(window).off('click', cb);
               }
@@ -790,6 +793,8 @@ $.fn.extend({
           shell.hide();
           $input.beginCalendar.hide();
           $input.endCalendar.hide();
+          $input.beginCalendar.setTempDate('');
+          $input.endCalendar.setTempDate('');
         })
       },
 

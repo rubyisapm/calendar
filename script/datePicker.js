@@ -657,8 +657,6 @@ Calendar_datePicker.prototype = {
         this.disabledDates(partnerDate,true);
       }
     }
-
-
   },
 
   lightYellowDate: function (date) {
@@ -889,10 +887,6 @@ Calendar_datePicker.prototype = {
       return false;
     }
   }
-
-
-
-
 }
 
 
@@ -951,13 +945,17 @@ $.fn.extend({
           pos={};
         if(bw-x>=sw){
           pos.left=x+'px';
+          pos.right='initial';
         }else{
+          pos.left='initial';
           pos.right='5px';
         }
         if(bh-y<sh && y>sh){
+          pos.top='initial';
           pos.bottom=bh-y+'px';
         }else{
           pos.top=y+h+'px';
+          pos.bottom='initial';
         }
         $input.shell.css(pos);
       },
@@ -1044,6 +1042,8 @@ $.fn.extend({
               if(e.target!=$input[0]){
                 beginCalendar.hide();
                 endCalendar.hide();
+                beginCalendar.setTempDate('');
+                endCalendar.setTempDate('');
                 shell.hide();
                 $(window).off('click',cb);
               }
@@ -1073,9 +1073,7 @@ $.fn.extend({
             };
             $(window).bind('click',cb);
           }
-
         })
-
       },
       bindEvt_double_clear:function($input){
         var shell=$input.shell,
@@ -1149,6 +1147,8 @@ $.fn.extend({
           shell.hide();
           $input.beginCalendar.hide();
           $input.endCalendar.hide();
+          $input.beginCalendar.setTempDate('');
+          $input.endCalendar.setTempDate('');
         })
       },
       verify:function(begin,end,limit){

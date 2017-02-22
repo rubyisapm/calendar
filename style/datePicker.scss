@@ -1,8 +1,8 @@
 @mixin button {
   background-image: url(../image/calender-icon.png);
   background-repeat: no-repeat;
-  font-size: 0px;
-  line-height: 0px;
+  font-size: 0;
+  line-height: 0;
   _text-indent: -100px;
   position: absolute;
 }
@@ -147,7 +147,7 @@
   .buttons {
     clear: both;
     padding-top: 10px;
-    text-align: right;
+    overflow:hidden;
     span:nth-child(1) {
       margin-right: 30px;
     }
@@ -159,7 +159,7 @@
       @include clear;
       background-color: #6AB8F7;
       color: #fff;
-
+      float:right;
     }
     .clear{
       @include clear;

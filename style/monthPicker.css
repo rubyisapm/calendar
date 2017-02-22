@@ -72,6 +72,18 @@ li {
           line-height: 32px;
           text-align: center;
           cursor: pointer; }
+    .monthPicker_shell .calendar_box .clear {
+      height: 24px;
+      text-align: center;
+      line-height: 24px;
+      padding: 0 10px;
+      border: 1px solid #A6B3BD;
+      border-radius: 5px;
+      background-color: #eee;
+      font-family: 'microsoft yahei';
+      cursor: pointer;
+      display: inline-block;
+      margin: 10px auto 0; }
   .monthPicker_shell .calendar_box_begin td:not(.disabled) a:hover, .monthPicker_shell td.blueDate a {
     background-color: #5792dc; }
   .monthPicker_shell .calendar_box_end td:not(.disabled) a:hover, .monthPicker_shell td.yellowDate a {
@@ -84,18 +96,6 @@ li {
     cursor: default; }
   .monthPicker_shell .during a {
     background-color: #bbddf4; }
-  .monthPicker_shell .clear {
-    height: 24px;
-    text-align: center;
-    line-height: 24px;
-    padding: 0 10px;
-    border: 1px solid #A6B3BD;
-    border-radius: 5px;
-    background-color: #eee;
-    font-family: 'microsoft yahei';
-    cursor: pointer;
-    display: inline-block;
-    margin: 10px auto 0; }
   .monthPicker_shell .btn_close {
     background-image: url(../image/calender-icon.png);
     background-repeat: no-repeat;
@@ -121,8 +121,7 @@ li {
     right: -5px; }
   .monthPicker_shell_double .buttons {
     clear: both;
-    padding-top: 10px;
-    text-align: right; }
+    padding-top: 10px; }
     .monthPicker_shell_double .buttons span:nth-child(1) {
       margin-right: 30px; }
     .monthPicker_shell_double .buttons span:hover {
@@ -140,7 +139,8 @@ li {
       cursor: pointer;
       display: inline-block;
       background-color: #6AB8F7;
-      color: #fff; }
+      color: #fff;
+      float: right; }
     .monthPicker_shell_double .buttons .clear {
       height: 24px;
       text-align: center;
