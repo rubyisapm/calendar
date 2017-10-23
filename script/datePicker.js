@@ -714,6 +714,257 @@ Calendar_datePicker.prototype = {
             }
         }
 
+=======
+      }
+    }else if(thisDate!=''){
+      //没有partner的情况
+      if(begin){
+        this.lightBlueDate(thisDate);
+      }else{
+        this.lightYellowDate(thisDate);
+      }
+    }else if(this.hasPartnerDate()){
+      partnerDate=this.ops.double ? this.partner.getTempDate() || this.partner.getDate() : this.partner.getDate();
+      if(begin){
+        this.lightYellowDate(partnerDate);
+        this.disabledDates(partnerDate,false);
+      }else{
+        this.lightBlueDate(partnerDate);
+        this.disabledDates(partnerDate,true);
+      }
+    }
+  },
+
+  lightYellowDate: function (date) {
+    var $calendar = this.calendarBody,
+      $calendar_yellowDate = $calendar.find('.yellowDate'),
+      $calendar_date = $calendar.find('td[date="' + date + '"]');
+    $calendar_yellowDate.removeClass('yellowDate');
+    $calendar_date.removeClass('disabled between during').addClass('yellowDate');
+  },
+  lightBlueDate: function (date) {
+    var $calendar=this.calendarBody,
+      $calendar_blueDate = $calendar.find('.blueDate'),
+      $calendar_date = $calendar.find('td[date="' + date + '"]');
+
+    $calendar_blueDate.removeClass('blueDate');
+    $calendar_date.removeClass('disabled between disabled').addClass('blueDate');
+  },
+  disabledDates: function (date, before) {
+    /*
+     * date:某个时间点
+     * before:Boolean 决定将之前还是之后的日期设置为不可选
+     * */
+    var $calendar=this.calendarBody,
+      $calendar_date = $calendar.find('td[date="' + date + '"]');
+    if ($calendar_date.length > 0) {
+      if (before) {
+        $calendar_date.prevAll().addClass('disabled');
+        $calendar_date.parent().prevAll().find('td').addClass('disabled');
+        // 将可用的日期重新去disabled化
+        $calendar_date.nextAll().removeClass('disabled');
+        $calendar_date.parent().nextAll().find('td').removeClass('disabled');
+      } else {
+        $calendar_date.nextAll().addClass('disabled');
+        $calendar_date.parent().nextAll().find('td').addClass('disabled');
+        // 将可用的日期重新去disabled化
+        $calendar_date.prevAll().removeClass('disabled');
+        $calendar_date.parent().prevAll().find('td').removeClass('disabled');
+      }
+    } else {
+      var currentDate = this.getView(),
+        date = date.split('/').slice(0, 2).join('/');
+
+      if ((before && new Date(currentDate) < new Date(date)) || (!before && new Date(currentDate) > new Date(date))) {
+        var $calendar_td = $calendar.find('td');
+        $calendar_td.addClass('disabled');
+      }else{
+        var allTds=$calendar.find('td');
+        allTds.removeClass('disabled');
+      }
+    }
+  },
+  selecteDate: function (date) {
+    var date = this.analysisDate(date),
+      $calendar=this.calendarBody,
+      $calendar_date_box_year = $calendar.find('.date_box_year'),
+      $calendar_date_box_month = $calendar.find('.date_box_month');
+    $calendar_date_box_year.val(date.year);
+    $calendar_date_box_month.val(date.month);
+  },
+  writeDate: function (date) {
+    var gridHTML = this.calendarTitle(date),
+      $calendar=this.calendarBody,
+      $calendar_date_box_title = $calendar.find('.date_box_title');
+    $calendar_date_box_title.html(gridHTML);
+  },
+  /*base*/
+  isLeap: function (year) {
+    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isTOMonth: function (month) {
+    if (this.NORMAL.TOMONTH.indexOf(1 * month) > -1) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isTZMonth: function (month) {
+    if (this.NORMAL.TZMONTH.indexOf(1 * month) > -1) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  isFirstMonth: function (month) {
+    if (month == 1) {
+      return true;
+    }
+    return false;
+  },
+  isLastMonth: function (month) {
+    if (month == 12) {
+      return true;
+    }
+    return false;
+  },
+  analysisDate: function (date) {
+    /*date:year/month or year/month/date*/
+    var a = date.split('/');
+    if (a.length == 2) {
+      return {
+        year: a[0]*1,
+        month: a[1]*1
+      }
+    } else {
+      return {
+        year: a[0]*1,
+        month: a[1]*1,
+        date: a[2]*1
+      }
+    }
+  },
+  dateFormat: function (date) {
+    if (this.REG.date.test(date)) {
+      var arr = date.split('/');
+      arr = arr.map(function (v) {
+        return parseInt(v);
+      })
+      return arr.join('/');
+    } else {
+      return '';
+    }
+
+  },
+  lastMonth: function (date) {
+    /*date:year/month or year/month/date*/
+    var date = this.analysisDate(date),
+      resultY,
+      resultM;
+    if (this.isFirstMonth(date.month)) {
+      resultY = date.year - 1;
+      resultM = 12;
+    } else {
+      resultY = date.year;
+      resultM = date.month - 1;
+    }
+    return resultY + '/' + resultM;
+  },
+  nextMonth: function (date) {
+    /*date:year-month or year-month-date*/
+    var date = this.analysisDate(date),
+      resultY,
+      resultM;
+    if (this.isLastMonth(date.month)) {
+      resultY = 1 * date.year + 1;
+      resultM = 1;
+    } else {
+      resultY = date.year;
+      resultM = 1 * date.month + 1;
+    }
+    return resultY + '/' + resultM;
+  },
+  largerThanByYM:function(ym1,ym2){
+    var first=ym1.split('/'),
+      y1=first[0]*1,
+      m1=first[1]*1,
+      second=ym2.split('/'),
+      y2=second[0]*1,
+      m2=second[1]*1;
+    if(y1>y2){
+      return true;
+    }else if(y1==y2 && m1>m2){
+      return true;
+    }
+    return false;
+  },
+  largerThanByYMD:function(ymd1,ymd2){
+    var first=ymd1.split('/'),
+      y1=first[0]*1,
+      m1=first[1]*1,
+      d1=first[2]* 1,
+      second=ymd2.split('/'),
+      y2=second[0]*1,
+      m2=second[1]* 1,
+      d2=second[2]*1;
+    if(y1>y2){
+      return true;
+    }else if(y1==y2 && m1>m2){
+      return true;
+    }else if(y1==y2 && m1==m2 && d1>d2){
+      return true;
+    }
+    return false;
+  },
+  hasPartnerDate:function(){
+    if(this.ops.double){
+      return this.partner!=null && (this.partner.getTempDate() || this.partner.getDate())!='';
+    }else{
+      return this.partner!=null && this.partner.getDate()!='';
+    }
+  },
+  /**/
+
+  setPartner: function (partner, begin) {
+    /*
+     * partner: Calendar object
+     * begin:boolean
+     * */
+
+    this.partner = partner;
+    this.begin = begin;
+    if (partner.partner == null) {
+      partner.setPartner(this, !begin);
+    }
+  },
+
+  toTime: function (date) {
+    /*将类似2014/01/01转换为毫秒*/
+    return +new Date(date);
+  },
+  syncInput: function () {
+    var date = this.getDate();
+    this.input.val(date);
+  },
+  hide:function(){
+    this.calendarBody.hide();
+  },
+  show:function(){
+    this.calendarBody.show();
+  },
+  isHidden:function(){
+    if(this.calendarBody.is(':hidden')){
+      return true;
+    }else{
+      return false;
+    }
+  }
+}
+>>>>>>> 86cfc21bdc447f687b0d89b4e18a798ffbe38fec
 
     },
 
@@ -883,6 +1134,33 @@ Calendar_datePicker.prototype = {
             return arr.join('/');
         } else {
             return '';
+=======
+        $('body').append(shell);
+        $input.shell=shell;
+      },
+      positionShell: function ($input) {
+        var x = $input.offset().left,
+          y = $input.offset().top,
+          h = parseInt($input.outerHeight()),
+          bw=parseInt($(window).outerWidth()),
+          bh=parseInt($(window).outerHeight()),
+          sw=parseInt($input.shell.outerWidth())+5,
+          sh=parseInt($input.shell.outerHeight())+5,
+          pos={};
+        if(bw-x>=sw){
+          pos.left=x+'px';
+          pos.right='initial';
+        }else{
+          pos.left='initial';
+          pos.right='5px';
+        }
+        if(bh-y<sh && y>sh){
+          pos.top='initial';
+          pos.bottom=bh-y+'px';
+        }else{
+          pos.top=y+h+'px';
+          pos.bottom='initial';
+>>>>>>> 86cfc21bdc447f687b0d89b4e18a798ffbe38fec
         }
 
     },
@@ -1321,6 +1599,162 @@ $.fn.extend({
             var defaultBeginDate=new Date(+new Date(ops.defaultBeginDate)+86400000*6);
             defaultBeginDate=defaultBeginDate.getFullYear()+'/'+(defaultBeginDate.getMonth()+1)+'/'+defaultBeginDate.getDate();
             ops.defaultBeginDate=defaultBeginDate;
+=======
+              beginCalendar.update();
+              endCalendar.update();
+              shell.find('.calendar_box').remove();
+            }
+            $buttons.before(beginCalendar.calendarBody);
+            $buttons.before(endCalendar.calendarBody);
+            beginCalendar.show();
+            endCalendar.show();
+            //避免不可见元素影响位置尺寸误判
+            _this.positionShell($input);
+            shell.show();
+
+            var cb=function(e){
+              if(e.target!=$input[0]){
+                beginCalendar.hide();
+                endCalendar.hide();
+                beginCalendar.setTempDate('');
+                endCalendar.setTempDate('');
+                shell.hide();
+                $(window).off('click',cb);
+              }
+            };
+            $(window).bind('click',cb);
+          }else{
+            var calendar=$input.calendar;
+
+            $('.calendar_box').hide();
+
+            if(shell.html()==''){
+              calendar.init();
+            }else{
+                if(calendar.getDate()==''){
+                    calendar.setDate($input.ops.defaultDate);
+                }
+              calendar.update();
+            }
+            shell.html(calendar.calendarBody);
+            calendar.show();
+            _this.positionShell($input);
+            var cb=function(e){
+              if(e.target!=$input[0]){
+                calendar.hide();
+                $(window).off('click',cb);
+              }
+            };
+            $(window).bind('click',cb);
+          }
+        })
+      },
+      bindEvt_double_clear:function($input){
+        var shell=$input.shell,
+          beginCalendar=$input.beginCalendar,
+          endCalendar=$input.endCalendar;
+        shell.delegate('.clear','click',function(e){
+          e.stopPropagation();
+          beginCalendar.setDate('');
+          beginCalendar.setTempDate('');
+          endCalendar.setDate('');
+          endCalendar.setTempDate('');
+          $('.between').removeClass('between');
+          $('.blueDate').removeClass('blueDate');
+          $('.yellowDate').removeClass('yellowDate');
+          $('.disabled').removeClass('disabled');
+          $input.val('');
+          if(typeof $input.ops.clear == 'function'){
+            $input.ops.clear();
+          }
+        })
+      },
+      bindEvt_double_simple:function($input){
+        var shell=$input.shell;
+        shell.bind('click',function(e){
+          e.stopPropagation();
+        })
+      },
+      bindEvt_double_sure:function($input){
+        var _this=this,
+          shell=$input.shell,
+          beginCalendar=$input.beginCalendar,
+          endCalendar=$input.endCalendar;
+        shell.delegate('.sure','click',function(e){
+          e.stopPropagation();
+          var beginDate=beginCalendar.getTempDate() || beginCalendar.getDate(),
+            endDate=endCalendar.getTempDate() || endCalendar.getDate();
+          if(beginDate!='' && endDate!=''){
+            //verify dates
+            var verify=true,
+              limited = $input.ops.limited;
+            if(limited){
+              verify=_this.verify(beginDate,endDate,limited).pass;
+            }
+            if(verify) {
+              $input.beginCalendar.setDate(beginDate);
+              $input.endCalendar.setDate(endDate);
+              $input.val(beginDate + '-' + endDate);
+              shell.hide();
+              if(typeof $input.ops.sure == 'function'){
+                $input.ops.sure(beginDate + '-' + endDate);
+              }
+            }else{
+              alert(_this.verify(beginDate,endDate,limited).msg)
+            }
+          }else if(beginDate=='' && endDate!=''){
+            alert('请选择起始日期!');
+          }else if(beginDate!='' && endDate==''){
+            alert('请选择结束日期!');
+          }else if($input.ops.necessary){
+            alert('请选择相应的日期!');
+          }else{
+            shell.hide();
+            $input.beginCalendar.hide();
+            $input.endCalendar.hide();
+          }
+        })
+      },
+      bindEvt_double_close:function($input){
+        var shell = $input.shell;
+        shell.delegate('.btn_close','click',function(){
+          shell.hide();
+          $input.beginCalendar.hide();
+          $input.endCalendar.hide();
+          $input.beginCalendar.setTempDate('');
+          $input.endCalendar.setTempDate('');
+        })
+      },
+      verify:function(begin,end,limit){
+        if(new Date(begin)>new Date(end)) return;
+      //  解析limit
+        var unit=limit.substr(-1,1),
+          howmany=limit.substring(0,limit.length-1),
+          bd=begin.split('/'),
+          ed=end.split('/'),
+          y1=bd[0],
+          y2=ed[0],
+          m1=bd[1],
+          m2=ed[1]*1+12*(y2-y1),
+          d1=bd[2],
+          d2=ed[2];
+        switch(unit){
+          case 'd':
+            return {
+              pass:new Date(end)-new Date(begin)<=(howmany-1)*86400000,
+              msg:'日期跨度不得超过'+howmany+'天!'
+            };
+          case 'm':
+            return {
+              pass:m2-m1+1<howmany || (m2-m1+1==howmany && d2-d1<=0),
+              msg:'日期跨度不得超过'+howmany+'个月!'
+            };
+          case 'y':
+            return {
+              pass:m2-m1<howmany*12 || (m2-m1==howmany*12 && d2-d1<=0),
+              msg:'日期跨度不得超过'+howmany+'年!'
+            };
+>>>>>>> 86cfc21bdc447f687b0d89b4e18a798ffbe38fec
         }
         if(ops.defaultEndDate!=='' && ops.double && ops.byWeek){
             var defaultEndDate=new Date(+new Date(ops.defaultEndDate)-86400000*6);

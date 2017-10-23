@@ -49,6 +49,7 @@ li {
 
 .monthPicker_shell {
   position: absolute;
+  z-index:9999;
   .calendar_box {
     border-width: 1px;
     border-style: solid;
@@ -108,6 +109,10 @@ li {
       }
     }
     }
+    .clear {
+      @include clear;
+      margin: 10px auto 0;
+    }
   }
   .calendar_box_begin td:not(.disabled) a:hover, td.blueDate a {
     background-color: #5792dc;
@@ -128,10 +133,7 @@ li {
     background-color: #bbddf4;
   }
 
-  .clear {
-    @include clear;
-    margin: 10px auto 0;
-  }
+
   .btn_close {
     @include button;
     width: 17px;
@@ -157,7 +159,6 @@ li {
   .buttons {
     clear: both;
     padding-top: 10px;
-    text-align: right;
     span:nth-child(1) {
       margin-right: 30px;
     }
@@ -169,7 +170,7 @@ li {
       @include clear;
       background-color: #6AB8F7;
       color: #fff;
-
+      float:right;
     }
     .clear {
       @include clear;
