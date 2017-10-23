@@ -46,6 +46,9 @@
 
       .date_table {
         border-collapse: collapse;
+          tr.week_hover{
+              background-color: #5792dc;
+          }
         td {
           text-align: center;
           color: #5F5F5F;
@@ -71,10 +74,10 @@
       margin: 10px auto 0;
     }
   }
-  .calendar_box_begin td:not(.disabled) a:hover,  td.blueDate a {
+  .calendar_box_begin td:not(.disabled) a:hover, td.blueDate a,.calendar_box_begin_week tr:hover{
     background-color: #5792dc
   }
-  .calendar_box_end td:not(.disabled) a:hover, td.yellowDate {
+  .calendar_box_end td:not(.disabled) a:hover, td.yellowDate a,.calendar_box_end_week tr:hover{
     background-color: #e2ad44
   }
   .between a {

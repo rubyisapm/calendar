@@ -20,6 +20,8 @@
       margin: 0; }
     .datePicker_shell .calendar_box .date_box .date_table {
       border-collapse: collapse; }
+      .datePicker_shell .calendar_box .date_box .date_table tr.week_hover {
+        background-color: #5792dc; }
       .datePicker_shell .calendar_box .date_box .date_table td {
         text-align: center;
         color: #5F5F5F;
@@ -46,9 +48,9 @@
       cursor: pointer;
       display: inline-block;
       margin: 10px auto 0; }
-  .datePicker_shell .calendar_box_begin td:not(.disabled) a:hover, .datePicker_shell td.blueDate a {
+  .datePicker_shell .calendar_box_begin td:not(.disabled) a:hover, .datePicker_shell td.blueDate a, .datePicker_shell .calendar_box_begin_week tr:hover {
     background-color: #5792dc; }
-  .datePicker_shell .calendar_box_end td:not(.disabled) a:hover, .datePicker_shell td.yellowDate {
+  .datePicker_shell .calendar_box_end td:not(.disabled) a:hover, .datePicker_shell td.yellowDate a, .datePicker_shell .calendar_box_end_week tr:hover {
     background-color: #e2ad44; }
   .datePicker_shell .between a {
     background-color: #d9f2ff; }
