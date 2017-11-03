@@ -112,15 +112,15 @@
         clear:function(){
             console.log('清除日期后的回调');
         }
-    })
+    });
     $('#d_double_byweek').datePicker({
         double: true,
         switchYM: true,
         hasBefore:true,
         hasAfter:true,
         byWeek:true,
-        defaultBeginDate:'2017/10/1',
-        defaultEndDate:'2017/10/21',
+        beginDate:'',
+        endDate:'',
         sure:function(){
             console.log('确定日期后的回调');
         },
@@ -128,8 +128,6 @@
             console.log('清除日期后的回调');
         }
     })
-
-
 </script>
 
 
