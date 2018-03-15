@@ -49,10 +49,14 @@
       cursor: pointer;
       display: inline-block;
       margin: 10px auto 0; }
-  .datePicker_shell .calendar_box_begin td:not(.disabled) a:hover, .datePicker_shell td.blueDate a, .datePicker_shell .calendar_box_begin_week tr:hover {
+  .datePicker_shell .calendar_box_begin td:not(.disabled) a:hover, .datePicker_shell td.blueDate a, .datePicker_shell .calendar_box_begin_week tbody tr:hover {
     background-color: #5792dc; }
-  .datePicker_shell .calendar_box_end td:not(.disabled) a:hover, .datePicker_shell td.yellowDate a, .datePicker_shell .calendar_box_end_week tr:hover {
+  .datePicker_shell .calendar_box_end td:not(.disabled) a:hover, .datePicker_shell td.yellowDate a, .datePicker_shell .calendar_box_end_week tbody tr:hover {
     background-color: #e2ad44; }
+  .datePicker_shell .calendar_box_begin_week tr:hover .between a, .datePicker_shell .calendar_box_begin_week tr:hover .during a, .datePicker_shell .calendar_box_begin_week tr:hover .yellowDate a, .datePicker_shell .calendar_box_begin_week tr:hover .blueDate a {
+    background-color: initial; }
+  .datePicker_shell .calendar_box_end_week tr:hover .between a, .datePicker_shell .calendar_box_end_week tr:hover .during a, .datePicker_shell .calendar_box_end_week tr:hover .yellowDate a, .datePicker_shell .calendar_box_end_week tr:hover .blueDate a {
+    background-color: initial; }
   .datePicker_shell .between a {
     background-color: #d9f2ff; }
   .datePicker_shell .disabled a {

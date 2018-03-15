@@ -180,6 +180,14 @@ Calendar_datePicker.prototype = {
 
         $calendar_body.delegate('td[class!="disabled"][class!="space"]', 'click', function(e) {
             e.stopPropagation();
+            if(_this.ops.double){
+                if(_this.begin && $(this).hasClass('blueDate')) return;
+                if(!_this.begin && $(this).hasClass('yellowDate')) return;
+            }else{
+                // 今天的标识/选中的日期是yellowDate
+                // if($(this).hasClass('blueDate')) return;
+                // if($(this).hasClass('yellowDate')) return;
+            }
             var date;
             date= $(this).attr('date');
             if(_this.ops.byWeek){
@@ -274,7 +282,8 @@ Calendar_datePicker.prototype = {
                     if (typeof firstDate != 'undefined' && typeof lastDate != 'undefined') {
                         var firstDateObj = _this.analysisDate(firstDate);
                         var lastDateObj = _this.analysisDate(lastDate);
-                        for (var i = firstDateObj.date; _this.ops.byWeek ? i < lastDateObj.date : i <= lastDateObj.date; i++) {
+                        //for (var i = firstDateObj.date; _this.ops.byWeek ? i < lastDateObj.date : i <= lastDateObj.date; i++) {
+                        for (var i = firstDateObj.date; i <= lastDateObj.date; i++) {
                             var td = $calendar.find('td[date="' + firstDateObj.year + '/' + firstDateObj.month + '/' + i + '"]');
                             td.addClass('during');
                         }
@@ -448,8 +457,8 @@ Calendar_datePicker.prototype = {
             year = crtDate.getFullYear();
             month = crtDate.getMonth() + 1;
         }
-        preYear=this.isFirstMonth() ? year-1 : year;
-        nextYear=this.isLastMonth() ? year+1 : year;
+        preYear=this.isFirstMonth(month) ? year-1 : year;
+        nextYear=this.isLastMonth(month) ? year+1 : year;
         preMonth=this.getPreMonth(month);
         nextMonth=this.getNextMonth(month);
         crtDate.setFullYear(year, month - 1, 1);
@@ -613,11 +622,15 @@ Calendar_datePicker.prototype = {
                     firstDate = $calendar.find('td[date="' + thisDate + '"]').attr('date');
                     lastDate = $calendar.find('td[date="' + partnerDate + '"]').attr('date');
                     this.disabledDates(lastDate, false);
-
                 } else {
                     firstDate = $calendar.find('td[date="' + partnerDate + '"]').attr('date');
                     lastDate = $calendar.find('td[date="' + thisDate + '"]').attr('date');
-                    this.disabledDates(firstDate, true);
+                    if(this.ops.byWeek){
+                        firstDate=$calendar.find('td[date="' + partnerDate + '"]').parents('tr').find('td:first').attr('date');
+                        this.disabledDates(firstDate, true);
+                    }else{
+                        this.disabledDates(firstDate, true);
+                    }
                 }
 
                 if (typeof firstDate != 'undefined' && typeof lastDate != 'undefined') {
@@ -630,7 +643,6 @@ Calendar_datePicker.prototype = {
                 }
                 this.lightBlueDate(firstDate);
                 this.lightYellowDate(lastDate);
-
             } else {
                 if (begin) {
 
@@ -639,7 +651,10 @@ Calendar_datePicker.prototype = {
                     } else if (this.largerThanByYM(thisView, partnerDateYM)) {
                         $calendar.find('td').addClass('disabled');
                     } else {
-                        if (thisView == thisDateYM) {
+                        if(this.ops.byWeek){
+                            var closeMonth = Math.abs(new Date(thisView+'/1')-new Date(thisDateYM+'/1'))/86400000<32;
+                        }
+                        if (thisView == thisDateYM || (this.ops.byWeek && closeMonth)) {
                             this.lightBlueDate(thisDate);
                             firstTD = $calendar.find('td[date="' + thisDate + '"]');
                             if(this.ops.byWeek){
@@ -656,7 +671,13 @@ Calendar_datePicker.prototype = {
                             }
                             lastTD.prevAll().removeClass('disabled blueDate yellowDate').addClass(color);
                             lastTD.parent().prevAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
-                            this.disabledDates(partnerDate, false);
+                            if(this.ops.byWeek){
+                                partnerDate=new Date(+new Date(partnerDate)+86400000*6);
+                                partnerDate=partnerDate.getFullYear()+'/'+(partnerDate.getMonth()+1)+'/'+partnerDate.getDate();
+                                this.disabledDates(partnerDate, false);
+                            }else{
+                                this.disabledDates(partnerDate, false);
+                            }
                         }
 
                     }
@@ -673,14 +694,21 @@ Calendar_datePicker.prototype = {
                                 firstTD = $calendar.find('td[date="' + partnerDate + '"]').parents('tr').find('td:last');
                             }
                             firstTD.nextAll().removeClass('disabled blueDate yellowDate').addClass(color);
-                            if(!this.ops.byWeek){
-                                firstTD.parent().nextAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
+                            firstTD.parent().nextAll().find('td').removeClass('disabled blueDate yellowDate').addClass(color);
+                            if(this.ops.byWeek){
+                                partnerDate=new Date(+new Date(partnerDate)-86400000*6);
+                                partnerDate=partnerDate.getFullYear()+'/'+(partnerDate.getMonth()+1)+'/'+partnerDate.getDate();
+                                this.disabledDates(partnerDate, true);
                             }else{
-                                firstTD.parent().nextUntil('tr:last').find('td').removeClass('disabled blueDate yellowDate').addClass(color);
+                                this.disabledDates(partnerDate, true);
                             }
-                            this.disabledDates(partnerDate, true);
                         }
-                        if (thisView == thisDateYM) {
+
+                        if(this.ops.byWeek){
+                            var closeMonth = Math.abs(new Date(thisView+'/1')-new Date(thisDateYM+'/1'))/86400000<32;
+                        }
+
+                        if (thisView == thisDateYM || (this.ops.byWeek && closeMonth)) {
                             this.lightYellowDate(thisDate);
                             lastTD = $calendar.find('td[date="' + thisDate + '"]');
                             if(this.ops.byWeek){
@@ -710,7 +738,13 @@ Calendar_datePicker.prototype = {
                 this.disabledDates(partnerDate, false);
             } else {
                 this.lightBlueDate(partnerDate);
-                this.disabledDates(partnerDate, true);
+                if(this.ops.byWeek){
+                    partnerDate=new Date(+new Date(partnerDate)-86400000*6);
+                    partnerDate=partnerDate.getFullYear()+'/'+(partnerDate.getMonth()+1)+'/'+partnerDate.getDate();
+                    this.disabledDates(partnerDate, true);
+                }else{
+                    this.disabledDates(partnerDate, true);
+                }
             }
         }
 
@@ -722,12 +756,12 @@ Calendar_datePicker.prototype = {
             $calendar_yellowDate = $calendar.find('.yellowDate'),
             $calendar_date = $calendar.find('td[date="' + date + '"]');
 
+
+        $calendar_yellowDate.removeClass('yellowDate');
+        $calendar_date.removeClass('disabled between during').addClass('yellowDate');
         if(this.ops.byWeek){
             var $calendar_dates=$calendar_date.parents('tr').find('td');
             $calendar_dates.removeClass('disabled between during').addClass('yellowDate');
-        }else{
-            $calendar_yellowDate.removeClass('yellowDate');
-            $calendar_date.removeClass('disabled between during').addClass('yellowDate');
         }
 
     },
@@ -735,12 +769,12 @@ Calendar_datePicker.prototype = {
         var $calendar = this.calendarBody,
             $calendar_blueDate = $calendar.find('.blueDate'),
             $calendar_date = $calendar.find('td[date="' + date + '"]');
+
+        $calendar_blueDate.removeClass('blueDate');
+        $calendar_date.removeClass('disabled between disabled').addClass('blueDate');
         if(this.ops.byWeek){
             var $calendar_dates=$calendar_date.parents('tr').find('td');
             $calendar_dates.removeClass('disabled between during').addClass('blueDate');
-        }else{
-            $calendar_blueDate.removeClass('blueDate');
-            $calendar_date.removeClass('disabled between disabled').addClass('blueDate');
         }
     },
     disabledDates: function(date, before) {
@@ -1317,18 +1351,29 @@ $.fn.extend({
             defaultEndDate: ''// 双日历 当点击input时，如果日期为空，按该结束日期渲染
         };
         var $input = $(this);
-        if(ops.defaultBeginDate!=='' && ops.double && ops.byWeek){
-            var defaultBeginDate=new Date(+new Date(ops.defaultBeginDate)+86400000*6);
+        $input.ops = $.extend(true, {}, defaults, ops);
+        if($input.ops.defaultBeginDate!=='' && $input.ops.double && $input.ops.byWeek){
+            var defaultBeginDate=new Date(+new Date($input.ops.defaultBeginDate)+86400000*6);
             defaultBeginDate=defaultBeginDate.getFullYear()+'/'+(defaultBeginDate.getMonth()+1)+'/'+defaultBeginDate.getDate();
-            ops.defaultBeginDate=defaultBeginDate;
+            $input.ops.defaultBeginDate=defaultBeginDate;
         }
-        if(ops.defaultEndDate!=='' && ops.double && ops.byWeek){
-            var defaultEndDate=new Date(+new Date(ops.defaultEndDate)-86400000*6);
+        if($input.ops.defaultEndDate!=='' && $input.ops.double && $input.ops.byWeek){
+            var defaultEndDate=new Date(+new Date($input.ops.defaultEndDate)-86400000*6);
             defaultEndDate=defaultEndDate.getFullYear()+'/'+(defaultEndDate.getMonth()+1)+'/'+defaultEndDate.getDate();
-            ops.defaultEndDate=defaultEndDate;
+            $input.ops.defaultEndDate=defaultEndDate;
+        }
+        if($input.ops.beginDate!=='' && $input.ops.double && $input.ops.byWeek){
+            var beginDate=new Date(+new Date($input.ops.beginDate)+86400000*6);
+            beginDate=beginDate.getFullYear()+'/'+(beginDate.getMonth()+1)+'/'+beginDate.getDate();
+            $input.ops.beginDate=beginDate;
+        }
+        if($input.ops.endDate!=='' && $input.ops.double && $input.ops.byWeek){
+            var endDate=new Date(+new Date($input.ops.endDate)-86400000*6);
+            endDate=endDate.getFullYear()+'/'+(endDate.getMonth()+1)+'/'+endDate.getDate();
+            $input.ops.endDate=endDate;
         }
 
-        $input.ops = $.extend(true, {}, defaults, ops);
+
         /*
          * $input:{
          *   calendar: Calendar实例 单日历中对应的日历对象
